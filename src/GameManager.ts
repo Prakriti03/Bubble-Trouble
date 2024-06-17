@@ -1,4 +1,4 @@
-import { CANVAS_DIMENSIONS, PLAYER_DIMENSIONS } from "./constants";
+import { CANVAS_DIMENSIONS } from "./constants";
 import { Player } from "./components/Player";
 import { Movement } from "./utils/enum";
 import bgImage from "/background.png";
@@ -6,7 +6,7 @@ import { Bubble } from "./components/Bubble";
 import { Ground } from "./components/Ground";
 import { GameState } from "./utils/enum";
 import { Arrow } from "./components/Arrow";
-import { collisionDetection } from "./utils/utils";
+// import { collisionDetection } from "./utils/utils";
 
 export class GameManager {
   canvas: HTMLCanvasElement;

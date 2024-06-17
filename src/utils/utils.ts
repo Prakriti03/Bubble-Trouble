@@ -1,9 +1,9 @@
-import { Bubble } from "../components/Bubble";
-import { Arrow } from "../components/Arrow";
+// import { Bubble } from "../components/Bubble";
+// import { Arrow } from "../components/Arrow";
 
 
 
-export function collisionDetection(ctx:CanvasRenderingContext2D): boolean{
+// export function collisionDetection(ctx:CanvasRenderingContext2D): boolean{
 //     const arrow = new Arrow(ctx);
 //     const bubble = new Bubble(ctx, 1, 40);
 //   //check collision between bubble and arrow
@@ -18,5 +18,5 @@ export function collisionDetection(ctx:CanvasRenderingContext2D): boolean{
 //         return true;
 //         }
 //     }
-    return false;
-}
+//     return false;
+// }
