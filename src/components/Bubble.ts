@@ -2,7 +2,6 @@
 import { BUBBLE_DY, BUBBLE_DX, GROUND_HEIGHT, CANVAS_DIMENSIONS } from "../constants";
 import { BUBBLE_CENTER_X, BUBBLE_CENTER_Y } from "../constants";
 import { PLAYER_DIMENSIONS } from "../constants";
-import { DEFAULT_BUBBLE_MAX_POSX } from "../constants";
 import { GRAVITY } from "../constants";
 
 export class Bubble {
@@ -32,7 +31,7 @@ export class Bubble {
     this.ctx = ctx;
     this.centerX = BUBBLE_CENTER_X;
     this.centerY = BUBBLE_CENTER_Y;
-    this.radius = 40;
+    this.radius = radius;
     this.gravity = GRAVITY;
     this.dy = BUBBLE_DY;
     this.dx = BUBBLE_DX;
