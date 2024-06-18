@@ -15,7 +15,6 @@ export class Ground{
         this.height = GROUND_HEIGHT;
     }
     draw(){
-        console.log("inside ground draw");
         this.ctx.beginPath();
         this.ctx.fillStyle = "black";
         this.ctx.fillRect(this.posX,this.posY,this.width,this.height);

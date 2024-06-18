@@ -41,6 +41,20 @@ export class Player {
   }
   draw() {
     this.ctx.beginPath();
+    if (this.movement === Movement.STATIONARY){
+      this.ctx.drawImage(
+        this.heroImage,
+        8,
+        112,
+        31,
+        55,
+        this.posX,
+        this.posY,
+        this.playerWidth,
+        this.playerHeight
+      );
+    }
+    
     if (this.movement === Movement.LEFT){
       this.ctx.drawImage(
         this.heroImage,
@@ -79,28 +93,14 @@ export class Player {
       }
       this.gameFrame++;
     }
-    if (this.movement === Movement.STATIONARY){
-      this.ctx.drawImage(
-        this.heroImage,
-        8,
-        112,
-        31,
-        55,
-        this.posX,
-        this.posY,
-        this.playerWidth,
-        this.playerHeight
-      );
+  
     this.ctx.closePath();
-    }
   }
   update() {
-    console.log("inside update");
-    if (this.movement === Movement.LEFT) {
-      console.log("inside left movement");
+    if (this.movement === Movement.LEFT && this.posX >= 0 ) {
       this.posX -= this.dx;
     }
-    if (this.movement === Movement.RIGHT) {
+    if (this.movement === Movement.RIGHT && this.posX + this.spriteWidth <= CANVAS_DIMENSIONS.CANVAS_WIDTH) {
       this.posX += this.dx;
     }
   }

@@ -8,4 +8,5 @@ export enum GameState {
     RUNNING = "Running",
     PAUSED = "Paused",
     END = "End",
+    WAITING = "Waiting",
 }

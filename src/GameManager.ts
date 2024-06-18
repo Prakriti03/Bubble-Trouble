@@ -6,7 +6,7 @@ import { Bubble } from "./components/Bubble";
 import { Ground } from "./components/Ground";
 import { GameState } from "./utils/enum";
 import { Arrow } from "./components/Arrow";
-// import { collisionDetection } from "./utils/utils";
+import { BUBBLE_RADIUS } from "./constants";
 
 export class GameManager {
   canvas: HTMLCanvasElement;
@@ -15,7 +15,7 @@ export class GameManager {
   x: number;
   y: number;
   bgImage: CanvasImageSource;
-  bubble ?: Bubble;
+  bubble?: Bubble;
   ground?: Ground;
   gameState: GameState;
   bubblePlayerDx?: number;
@@ -23,11 +23,15 @@ export class GameManager {
   bubblePlayerDistance?: number;
   bubbleArrowDx?: number;
   bubbleArrowDy?: number;
-  bubbleArrowDistance ?: number;
+  bubbleArrowDistance?: number;
   arrow?: Arrow;
-  arrowActive : boolean;
+  arrowActive: boolean;
   numberOfBubbles: number;
   bubbleRadius: number;
+  tempMovement?: Movement;
+  isBubbleArrowCollisionTrue?: boolean[];
+  // isPlayerBubbleCollisionTrue?: boolean;
+  bubbleArray?: Bubble[];
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.ctx = this.canvas.getContext("2d")!;
@@ -43,9 +47,13 @@ export class GameManager {
     this.gameState = GameState.RUNNING;
 
     this.numberOfBubbles = 1;
-    this.bubbleRadius = 40;
+    this.bubbleRadius = BUBBLE_RADIUS;
+
+    this.bubbleArray = [];
 
     this.arrowActive = false;
+
+    this.tempMovement = Movement.STATIONARY;
 
     this.initialSetup();
     this.start();
@@ -54,9 +62,11 @@ export class GameManager {
     document.addEventListener("keydown", (key) => {
       if (key.code === "ArrowLeft") {
         this.player!.movement = Movement.LEFT;
+        this.tempMovement = Movement.LEFT;
       }
       if (key.code === "ArrowRight") {
         this.player!.movement = Movement.RIGHT;
+        this.tempMovement = Movement.RIGHT;
       }
     });
 
@@ -64,15 +74,25 @@ export class GameManager {
     document.addEventListener("keyup", (e) => {
       if (e.code === "ArrowLeft" || e.code === "ArrowRight") {
         this.player!.movement = Movement.STATIONARY;
+        this.tempMovement = Movement.STATIONARY;
       }
     });
 
+    //when space key is pressed for arrows
     document.addEventListener("keydown", (key) => {
       if (key.code === "Space") {
+        Bubble.bubbleArray.forEach((bubble) => {
+          bubble.isHittable = true; //one arrow can only shoot bubble once
+        });
         this.arrow = new Arrow(this.ctx, this.player!.posX);
+        this.player!.movement = Movement.STATIONARY;
       }
     });
-
+    document.addEventListener("keyup", (key) => {
+      if (key.code === "Space") {
+        this.player!.movement = this.tempMovement;
+      }
+    });
   }
 
   //initializes components
@@ -80,6 +100,8 @@ export class GameManager {
     this.player = new Player(this.ctx);
     this.bubble = new Bubble(this.ctx, this.numberOfBubbles, this.bubbleRadius);
     this.ground = new Ground(this.ctx);
+    this.bubbleArray!.push(this.bubble);
+    Bubble.bubbleArray = this.bubbleArray!;
   }
 
   // to draw player, bubbles and power ups
@@ -109,37 +131,58 @@ export class GameManager {
       this.canvas.width,
       this.canvas.height
     );
+
+    //draw arrow
+    this.arrow?.draw();
+
     //draw player
     this.player?.draw();
 
     //draw bubbles
-    this.bubble?.draw();
+    this.bubbleArray!.forEach((bubble) => {
+      console.log(`${Bubble.bubbleArray.length}`);
+      bubble.draw(bubble.centerX, bubble.centerY);
+    });
 
     //draw ground
     this.ground?.draw();
+    if(this.bubbleArray?.length==0){
+      this.waitingStateRender();
+    }
+  }
 
-    //draw arrow
-    this.arrow?.draw();   
+  waitingStateRender(){
+    this.gameState = GameState.WAITING;
+    this.ctx.fillStyle = "red";
+    this.ctx.fillRect(100, 100, 100, 100);
   }
 
   //Checks collision between arrow & bubbles, bubbles & player
   checkCollision() {
-    //get distance between center of bubble and player
-    this.bubblePlayerDx = this.bubble!.centerX - this.player!.posX;
-    this.bubblePlayerDy = this.bubble!.centerY - this.player!.posY;
-    this.bubblePlayerDistance = Math.sqrt(
-      this.bubblePlayerDx * this.bubblePlayerDx +
-        this.bubblePlayerDy * this.bubblePlayerDy
-    );
+    this.bubbleArray!.forEach((bubble) => {
+      //check collision between player and bubble
+      bubble.checkCollision(
+        this.player!.posX,
+        this.player!.posY,
+        bubble.centerX,
+        bubble.centerY,
+        bubble.radius
+      );
 
-    //check collision between bubble and player
-    if (this.bubblePlayerDistance <= this.bubble!.radius) {
-      this.endGameStateRender();
-    }
+      if (bubble.isPlayerBubbleCollisionTrue) {
+        this.endGameStateRender();
+      }
+    });
 
- 
+    //check collision between bubble and arrow
+    this.bubbleArray!.forEach((bubble) => {
+      bubble.isBubbleArrowCollisionTrue = this.arrow?.checkCollision(
+        bubble.centerX,
+        bubble.centerY,
+        bubble.radius
+      );
+    });
   }
- 
 
   endGameStateRender() {
     this.gameState = GameState.END;
@@ -149,30 +192,56 @@ export class GameManager {
 
   update() {
     if (this.gameState !== GameState.RUNNING) return;
+    
+    //arrow splits bubbles
+    this.bubbleArray!.forEach((bubble, index) => {
+      if (
+        bubble.isBubbleArrowCollisionTrue &&
+        bubble.isHittable &&
+        this.arrow!.isActive
+      ) {
+        if (bubble.radius<10){
+          this.bubbleArray?.splice(index, 1);
+
+        }
+        else{
+
+          bubble.splitBubbles(bubble.maxBubbleHeight)!;
+
+        }
+        this.arrow!.isActive = false;
+      }
+    });
+
+
     this.player?.update();
 
-    //change the direction of bubbble bouncing
-    if (
-      this.bubble!.centerY + this.bubble!.radius >= this.ground!.posY ||
-      this.bubble!.centerY < 100
-    ) {
-      this.bubble?.resetDy();
-    }
-    if (
-      this.bubble!.centerX + this.bubble!.radius >= this.canvas.width ||
-      this.bubble!.centerX - this.bubble!.radius <= 0
-    ) {
-      this.bubble?.resetDx();
-    }
+    this.bubbleArray!.forEach((bubble) => {
+      //change the direction of bubbble bouncing
 
-    this.bubble?.update();
+      if (
+        bubble.centerY + bubble.radius >= this.ground!.posY ||
+        bubble.centerY < bubble.maxBubbleHeight
+      ) {
+        bubble.resetDy();
+      }
+      if (
+        bubble.centerX + bubble.radius >= this.canvas.width ||
+        bubble.centerX - bubble.radius <= 0
+      ) {
+        bubble.resetDx();
+      }
+
+      bubble.update();
+    });
+
     this.arrow?.update();
   }
 
   start() {
-    this.draw();
-    this.checkCollision();
     this.update();
+    this.checkCollision();
+    this.draw();
     this.start = this.start.bind(this);
     requestAnimationFrame(this.start);
   }
