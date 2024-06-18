@@ -16,6 +16,7 @@ export class Arrow{
     bubble : Bubble;
     bubbleArray ?: Bubble[];
     isBubbleArrowCollisionTrue ?: boolean[];
+    isHittable : boolean = false;
 
     constructor(ctx : CanvasRenderingContext2D, posX : number){
         this.ctx = ctx;

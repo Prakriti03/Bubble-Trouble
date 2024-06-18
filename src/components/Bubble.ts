@@ -1,8 +1,9 @@
 // import { GRAVITY } from "../constants";
-import { BUBBLE_DY, BUBBLE_DX } from "../constants";
+import { BUBBLE_DY, BUBBLE_DX, GROUND_HEIGHT, CANVAS_DIMENSIONS } from "../constants";
 import { BUBBLE_CENTER_X, BUBBLE_CENTER_Y } from "../constants";
 import { PLAYER_DIMENSIONS } from "../constants";
 import { DEFAULT_BUBBLE_MAX_POSX } from "../constants";
+import { GRAVITY } from "../constants";
 
 export class Bubble {
   ctx: CanvasRenderingContext2D;
@@ -12,7 +13,7 @@ export class Bubble {
   dy: number;
   dx: number;
   numberOfBubbles: number;
-  isHittable: boolean = false;
+  // isHittable: boolean = false;
   bubblePlayerDx?: number;
   bubblePlayerDy?: number;
   bubblePlayerDistance?: number;
@@ -21,10 +22,8 @@ export class Bubble {
   static bubbleArray: Bubble[] = [];
   isBubbleArrowCollisionTrue?: boolean;
   isPlayerBubbleCollisionTrue?: boolean;
-  maxBubbleHeight : number;
-
-  //   gravity: number;
-  hasLanded: boolean;
+  mass : number;
+  gravity: number;
   constructor(
     ctx: CanvasRenderingContext2D,
     numberOfBubbles: number,
@@ -33,15 +32,12 @@ export class Bubble {
     this.ctx = ctx;
     this.centerX = BUBBLE_CENTER_X;
     this.centerY = BUBBLE_CENTER_Y;
-    this.radius = radius;
-    // this.gravity = GRAVITY;
+    this.radius = 40;
+    this.gravity = GRAVITY;
     this.dy = BUBBLE_DY;
     this.dx = BUBBLE_DX;
-    this.hasLanded = false;
-    this.isHittable = false;
     this.numberOfBubbles = numberOfBubbles;
-    this.maxBubbleHeight = DEFAULT_BUBBLE_MAX_POSX;
-  
+    this.mass = this.radius;
   }
   draw(centerX: number, centerY: number) {
     const gradient = this.ctx.createRadialGradient(
@@ -64,16 +60,25 @@ export class Bubble {
     this.ctx.fill();
     this.ctx.closePath();
   }
-  resetDy() {
-    this.dy = -this.dy;
-  }
-  resetDx() {
-    this.dx = -this.dx;
+  calculateInitialVelocity(radius: number): number {
+    const baseVelocity = -9; // Base upward velocity value
+    const maxRadius = 40; 
+    const velocityScalingFactor = (radius / maxRadius); // Linear scaling factor
+    return baseVelocity * (1 + velocityScalingFactor); // Adjusted velocity
   }
   update() {
+    this.dy += this.gravity;
     this.centerX += this.dx;
     this.centerY += this.dy;
-    // this.dy += this.gravity;
+
+    if (this.centerY + this.radius >= CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT) {
+      this.centerY = CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT - this.radius;
+      this.dy =  this.calculateInitialVelocity(this.radius); 
+    }
+
+    if (this.centerX + this.radius >= CANVAS_DIMENSIONS.CANVAS_WIDTH || this.centerX - this.radius <= 0) {
+      this.dx *= -1; 
+    }
   }
   //check collision with player
   checkCollision(
@@ -107,27 +112,26 @@ export class Bubble {
       this.isPlayerBubbleCollisionTrue = false;
     }
   }
-  splitBubbles(height : number) {    
+  splitBubbles() {    
     this.radius /= 2;
 
-    // this.maxBubbleHeight +=150
 
     const bubble1 = new Bubble(this.ctx, this.numberOfBubbles, this.radius);
     bubble1.centerX = this.centerX - this.radius;
     bubble1.centerY = this.centerY;
     bubble1.dx = -Math.abs(this.dx); //move left after splitting
-    bubble1.dy = -Math.abs(this.dy);
+    bubble1.dy = this.calculateInitialVelocity(this.radius)* 0.7;
     bubble1.radius = this.radius;
-    bubble1.maxBubbleHeight   = height + 100;
+   
 
     //create second new bubble
     const bubble2 = new Bubble(this.ctx, this.numberOfBubbles, this.radius);
     bubble2.centerX = this.centerX + this.radius;
     bubble2.centerY = this.centerY;
     bubble2.dx = Math.abs(this.dx); //move right after splitting
-    bubble2.dy = -Math.abs(this.dy);
+    bubble2.dy = this.calculateInitialVelocity(this.radius) * 0.7;  //animation after splitting 
     bubble2.radius = this.radius;
-    bubble2.maxBubbleHeight  = height + 100;
+  
 
     const index = Bubble.bubbleArray.indexOf(this);
 
@@ -136,8 +140,6 @@ export class Bubble {
     }
 
     Bubble.bubbleArray.push(bubble1, bubble2);
-
-    this.isHittable = false;
  
 
   }

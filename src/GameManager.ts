@@ -81,10 +81,11 @@ export class GameManager {
     //when space key is pressed for arrows
     document.addEventListener("keydown", (key) => {
       if (key.code === "Space") {
-        Bubble.bubbleArray.forEach((bubble) => {
-          bubble.isHittable = true; //one arrow can only shoot bubble once
-        });
+        // Bubble.bubbleArray.forEach((bubble) => {
+        //   bubble.isHittable = true; //one arrow can only shoot bubble once
+        // });
         this.arrow = new Arrow(this.ctx, this.player!.posX);
+        this.arrow.isHittable = true;
         this.player!.movement = Movement.STATIONARY;
       }
     });
@@ -191,13 +192,16 @@ export class GameManager {
   }
 
   update() {
+
+    this.player?.update();
+
     if (this.gameState !== GameState.RUNNING) return;
     
     //arrow splits bubbles
     this.bubbleArray!.forEach((bubble, index) => {
       if (
         bubble.isBubbleArrowCollisionTrue &&
-        bubble.isHittable &&
+        this.arrow!.isHittable &&
         this.arrow!.isActive
       ) {
         if (bubble.radius<10){
@@ -206,31 +210,17 @@ export class GameManager {
         }
         else{
 
-          bubble.splitBubbles(bubble.maxBubbleHeight)!;
+          bubble.splitBubbles()!;
 
         }
         this.arrow!.isActive = false;
+        this.arrow!.isHittable = false;
       }
     });
-
-
-    this.player?.update();
 
     this.bubbleArray!.forEach((bubble) => {
       //change the direction of bubbble bouncing
 
-      if (
-        bubble.centerY + bubble.radius >= this.ground!.posY ||
-        bubble.centerY < bubble.maxBubbleHeight
-      ) {
-        bubble.resetDy();
-      }
-      if (
-        bubble.centerX + bubble.radius >= this.canvas.width ||
-        bubble.centerX - bubble.radius <= 0
-      ) {
-        bubble.resetDx();
-      }
 
       bubble.update();
     });
@@ -240,8 +230,8 @@ export class GameManager {
 
   start() {
     this.update();
-    this.checkCollision();
     this.draw();
+    this.checkCollision();
     this.start = this.start.bind(this);
     requestAnimationFrame(this.start);
   }
