@@ -1,11 +1,10 @@
-import { BUBBLE_CENTER_X, BUBBLE_CENTER_Y, CANVAS_DIMENSIONS } from "./constants";
+import {  CANVAS_DIMENSIONS } from "./constants";
 import { Player } from "./components/Player";
 import { Movement } from "./utils/enum";
 import { Bubble } from "./components/Bubble";
 import {  GroundWalls } from "./components/Ground";
 import { GameState } from "./utils/enum";
 import { Arrow } from "./components/Arrow";
-import {  WALL_WIDTH } from "./constants";
 import { LevelLoader } from "./LevelLoader";
 
 export class GameManager {

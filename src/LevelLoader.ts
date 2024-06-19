@@ -1,6 +1,5 @@
 import { GameManager } from "./GameManager";
 import { LEVEL_ONE, LEVEL_TWO, LEVEL_THREE } from './constants'
-import bgImageLevelOne from "/background.png"
 
 import { Bubble } from "./components/Bubble";
 

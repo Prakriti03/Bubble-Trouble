@@ -13,7 +13,7 @@ export class Arrow{
     arrowImage : CanvasImageSource;
     isActive : boolean
     playerMovement ?: Movement;
-    bubble : Bubble;
+    // bubble : Bubble;
     bubbleArray ?: Bubble[];
     isBubbleArrowCollisionTrue ?: boolean[];
     isHittable : boolean = false;
@@ -21,7 +21,7 @@ export class Arrow{
     constructor(ctx : CanvasRenderingContext2D, posX : number){
         this.ctx = ctx;
         this.player = new Player(ctx);
-        this.bubble = new Bubble(ctx, 1, 40);
+        // this.bubble = new Bubble(ctx, 1, 40);
         this.posX = posX + this.player.playerWidth/2;
         this.posY = CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT;
         this.arrowImage = new Image();
