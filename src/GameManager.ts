@@ -1,12 +1,12 @@
-import { CANVAS_DIMENSIONS } from "./constants";
+import { BUBBLE_CENTER_X, BUBBLE_CENTER_Y, CANVAS_DIMENSIONS } from "./constants";
 import { Player } from "./components/Player";
 import { Movement } from "./utils/enum";
-import bgImage from "/background.png";
 import { Bubble } from "./components/Bubble";
-import { Ground } from "./components/Ground";
+import {  GroundWalls } from "./components/Ground";
 import { GameState } from "./utils/enum";
 import { Arrow } from "./components/Arrow";
-import { BUBBLE_RADIUS } from "./constants";
+import {  WALL_WIDTH } from "./constants";
+import { LevelLoader } from "./LevelLoader";
 
 export class GameManager {
   canvas: HTMLCanvasElement;
@@ -16,7 +16,7 @@ export class GameManager {
   y: number;
   bgImage: CanvasImageSource;
   bubble?: Bubble;
-  ground?: Ground;
+  ground?: GroundWalls;
   gameState: GameState;
   bubblePlayerDx?: number;
   bubblePlayerDy?: number;
@@ -27,27 +27,33 @@ export class GameManager {
   arrow?: Arrow;
   arrowActive: boolean;
   numberOfBubbles: number;
-  bubbleRadius: number;
+  bubbleRadius ?: number;
   tempMovement?: Movement;
   isBubbleArrowCollisionTrue?: boolean[];
-  // isPlayerBubbleCollisionTrue?: boolean;
   bubbleArray?: Bubble[];
+  levelLoader : LevelLoader;
+  timeLimit : number;
+  elapsedTime : number;
+  startTime : number;
+  timeRemaining : number;
+  
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.ctx = this.canvas.getContext("2d")!;
     this.canvas.width = CANVAS_DIMENSIONS.CANVAS_WIDTH;
     this.canvas.height = CANVAS_DIMENSIONS.CANVAS_HEIGHT;
 
+    this.levelLoader = new LevelLoader(this);
+
     this.x = 0;
     this.y = 0;
 
-    this.bgImage = new Image();
-    this.bgImage.src = bgImage;
-
     this.gameState = GameState.RUNNING;
-
+    this.bgImage = new Image();
+    
+    // this.bgImage.src = bgImage;
     this.numberOfBubbles = 1;
-    this.bubbleRadius = BUBBLE_RADIUS;
+    // this.bubbleRadius = BUBBLE_RADIUS;
 
     this.bubbleArray = [];
 
@@ -55,7 +61,13 @@ export class GameManager {
 
     this.tempMovement = Movement.STATIONARY;
 
-    this.initialSetup();
+    this.timeLimit = 2 * 1000 * 60 ; // 2 minutes
+    this.startTime = Date.now();
+    this.timeRemaining = this.timeLimit;
+    this.elapsedTime = 0;
+
+    this.levelLoader.loadLevel(0);  //start with level 0
+    
     this.start();
 
     //when the arrow keys are pressed
@@ -81,9 +93,6 @@ export class GameManager {
     //when space key is pressed for arrows
     document.addEventListener("keydown", (key) => {
       if (key.code === "Space") {
-        // Bubble.bubbleArray.forEach((bubble) => {
-        //   bubble.isHittable = true; //one arrow can only shoot bubble once
-        // });
         this.arrow = new Arrow(this.ctx, this.player!.posX);
         this.arrow.isHittable = true;
         this.player!.movement = Movement.STATIONARY;
@@ -99,9 +108,8 @@ export class GameManager {
   //initializes components
   initialSetup() {
     this.player = new Player(this.ctx);
-    this.bubble = new Bubble(this.ctx, this.numberOfBubbles, this.bubbleRadius);
-    this.ground = new Ground(this.ctx);
-    this.bubbleArray!.push(this.bubble);
+    // this.bubble = new Bubble(this.ctx, this.numberOfBubbles, this.bubbleRadius, BUBBLE_CENTER_X, BUBBLE_CENTER_Y);
+    this.ground = new GroundWalls(this.ctx);
     Bubble.bubbleArray = this.bubbleArray!;
   }
 
@@ -110,14 +118,31 @@ export class GameManager {
     switch (this.gameState) {
       case GameState.RUNNING:
         this.runningStateRender();
+        this.drawTimer();
         break;
       case GameState.END:
         this.endGameStateRender();
         break;
     }
   }
-
+  
+  drawTimer() {
+    const minutes = Math.floor(this.timeRemaining / 60000);
+    const seconds = Math.floor((this.timeRemaining % 60000) / 1000);
+    const timeString = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    
+    this.ctx.font = '24px Arial';
+    this.ctx.fillStyle = 'white';
+    this.ctx.fillText(timeString, this.canvas.width - 100, 50);
+  }
+  resetTimer() {
+    this.startTime = Date.now();
+    this.elapsedTime = 0;
+    this.timeRemaining = this.timeLimit;
+  }
+  
   runningStateRender() {
+    // this.levelOne?.draw();
     this.ctx.clearRect(
       this.x,
       this.y,
@@ -148,14 +173,16 @@ export class GameManager {
     //draw ground
     this.ground?.draw();
     if(this.bubbleArray?.length==0){
-      this.waitingStateRender();
+      // this.waitingStateRender();
+      this.levelLoader.loadNextLevel();
     }
   }
 
-  waitingStateRender(){
+  waitingStateRender() {
     this.gameState = GameState.WAITING;
     this.ctx.fillStyle = "red";
     this.ctx.fillRect(100, 100, 100, 100);
+    this.levelLoader.loadNextLevel();
   }
 
   //Checks collision between arrow & bubbles, bubbles & player
@@ -171,6 +198,7 @@ export class GameManager {
       );
 
       if (bubble.isPlayerBubbleCollisionTrue) {
+        this.gameState = GameState.END;
         this.endGameStateRender();
       }
     });
@@ -192,11 +220,19 @@ export class GameManager {
   }
 
   update() {
+    
+    if (this.gameState !== GameState.RUNNING) return;
+
+    this.elapsedTime = Date.now() - this.startTime;
+    this.timeRemaining = this.timeLimit - this.elapsedTime;
+
+    if(this.timeRemaining<= 0){
+      this.gameState = GameState.END;
+      this.endGameStateRender();
+    }
 
     this.player?.update();
 
-    if (this.gameState !== GameState.RUNNING) return;
-    
     //arrow splits bubbles
     this.bubbleArray!.forEach((bubble, index) => {
       if (
@@ -204,14 +240,10 @@ export class GameManager {
         this.arrow!.isHittable &&
         this.arrow!.isActive
       ) {
-        if (bubble.radius<10){
+        if (bubble.radius < 10) {
           this.bubbleArray?.splice(index, 1);
-
-        }
-        else{
-
+        } else {
           bubble.splitBubbles()!;
-
         }
         this.arrow!.isActive = false;
         this.arrow!.isHittable = false;
@@ -220,7 +252,6 @@ export class GameManager {
 
     this.bubbleArray!.forEach((bubble) => {
       //change the direction of bubbble bouncing
-
 
       bubble.update();
     });

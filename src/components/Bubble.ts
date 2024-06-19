@@ -1,6 +1,6 @@
 // import { GRAVITY } from "../constants";
-import { BUBBLE_DY, BUBBLE_DX, GROUND_HEIGHT, CANVAS_DIMENSIONS } from "../constants";
-import { BUBBLE_CENTER_X, BUBBLE_CENTER_Y } from "../constants";
+import { BUBBLE_DY, BUBBLE_DX, GROUND_HEIGHT, CANVAS_DIMENSIONS, WALL_WIDTH } from "../constants";
+import { BUBBLE_CENTER_X, BUBBLE_CENTER_Y, MAX_BUBBLE_RADIUS } from "../constants";
 import { PLAYER_DIMENSIONS } from "../constants";
 import { GRAVITY } from "../constants";
 
@@ -26,11 +26,11 @@ export class Bubble {
   constructor(
     ctx: CanvasRenderingContext2D,
     numberOfBubbles: number,
-    radius: number
+    radius: number, bubbleCenterX : number, bubbleCenterY : number
   ) {
     this.ctx = ctx;
-    this.centerX = BUBBLE_CENTER_X;
-    this.centerY = BUBBLE_CENTER_Y;
+    this.centerX = bubbleCenterX;
+    this.centerY = bubbleCenterY;
     this.radius = radius;
     this.gravity = GRAVITY;
     this.dy = BUBBLE_DY;
@@ -61,7 +61,7 @@ export class Bubble {
   }
   calculateInitialVelocity(radius: number): number {
     const baseVelocity = -9; // Base upward velocity value
-    const maxRadius = 40; 
+    const maxRadius = MAX_BUBBLE_RADIUS; 
     const velocityScalingFactor = (radius / maxRadius); // Linear scaling factor
     return baseVelocity * (1 + velocityScalingFactor); // Adjusted velocity
   }
@@ -75,7 +75,7 @@ export class Bubble {
       this.dy =  this.calculateInitialVelocity(this.radius); 
     }
 
-    if (this.centerX + this.radius >= CANVAS_DIMENSIONS.CANVAS_WIDTH || this.centerX - this.radius <= 0) {
+    if (this.centerX + this.radius >= CANVAS_DIMENSIONS.CANVAS_WIDTH -WALL_WIDTH || this.centerX - this.radius <= WALL_WIDTH) {
       this.dx *= -1; 
     }
   }
@@ -115,21 +115,21 @@ export class Bubble {
     this.radius /= 2;
 
 
-    const bubble1 = new Bubble(this.ctx, this.numberOfBubbles, this.radius);
+    const bubble1 = new Bubble(this.ctx, this.numberOfBubbles, this.radius, this.centerX, this.centerY);
     bubble1.centerX = this.centerX - this.radius;
     bubble1.centerY = this.centerY;
     bubble1.dx = -Math.abs(this.dx); //move left after splitting
     bubble1.dy = this.calculateInitialVelocity(this.radius)* 0.7;
-    bubble1.radius = this.radius;
+    // bubble1.radius = this.radius;
    
 
     //create second new bubble
-    const bubble2 = new Bubble(this.ctx, this.numberOfBubbles, this.radius);
+    const bubble2 = new Bubble(this.ctx, this.numberOfBubbles, this.radius, BUBBLE_CENTER_X, BUBBLE_CENTER_Y);
     bubble2.centerX = this.centerX + this.radius;
     bubble2.centerY = this.centerY;
     bubble2.dx = Math.abs(this.dx); //move right after splitting
     bubble2.dy = this.calculateInitialVelocity(this.radius) * 0.7;  //animation after splitting 
-    bubble2.radius = this.radius;
+    // bubble2.radius = this.radius;
   
 
     const index = Bubble.bubbleArray.indexOf(this);
