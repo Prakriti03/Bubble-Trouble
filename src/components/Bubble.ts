@@ -3,6 +3,7 @@ import { BUBBLE_DY, BUBBLE_DX, GROUND_HEIGHT, CANVAS_DIMENSIONS, WALL_WIDTH } fr
 import { BUBBLE_CENTER_X, BUBBLE_CENTER_Y, MAX_BUBBLE_RADIUS } from "../constants";
 import { PLAYER_DIMENSIONS } from "../constants";
 import { GRAVITY } from "../constants";
+import { Wall } from "./Wall";
 
 export class Bubble {
   ctx: CanvasRenderingContext2D;
@@ -65,7 +66,7 @@ export class Bubble {
     const velocityScalingFactor = (radius / maxRadius); // Linear scaling factor
     return baseVelocity * (1 + velocityScalingFactor); // Adjusted velocity
   }
-  update() {
+  update(isWallPresent : boolean, isBubbleToWallRight : boolean) {
     this.dy += this.gravity;
     this.centerX += this.dx;
     this.centerY += this.dy;
@@ -78,7 +79,18 @@ export class Bubble {
     if (this.centerX + this.radius >= CANVAS_DIMENSIONS.CANVAS_WIDTH -WALL_WIDTH || this.centerX - this.radius <= WALL_WIDTH) {
       this.dx *= -1; 
     }
+
+    if(isWallPresent){
+      if(isBubbleToWallRight ){
+        console.log("bubble is at right side")
+      }
+    
+      if((this.centerX + this.radius>= Wall.posX && this.centerX+this.radius<=Wall.posX+WALL_WIDTH/2) || (this.centerX - this.radius<= Wall.posX +WALL_WIDTH/2 && this.centerX+this.radius>Wall.posX) ){
+        this.dx *= -1;
+      }
   }
+  }
+  
   //check collision with player
   checkCollision(
     playerPosX: number,
@@ -125,7 +137,9 @@ export class Bubble {
 
     //create second new bubble
     const bubble2 = new Bubble(this.ctx, this.numberOfBubbles, this.radius, BUBBLE_CENTER_X, BUBBLE_CENTER_Y);
+    // bubble2.centerX = this.centerX + this.radius;
     bubble2.centerX = this.centerX + this.radius;
+
     bubble2.centerY = this.centerY;
     bubble2.dx = Math.abs(this.dx); //move right after splitting
     bubble2.dy = this.calculateInitialVelocity(this.radius) * 0.7;  //animation after splitting 

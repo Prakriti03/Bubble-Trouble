@@ -1,6 +1,7 @@
 import bgImageLevelOne from "/background.png"
 import bgImageLevelTwo from "/bgImage2.jpeg"
 import bgImageLevelThree from "/bgImage3.jpeg"
+import { Wall } from "./components/Wall"
 // import bgImageLevelFour from "/bgImage4.png"
 
 export const CANVAS_DIMENSIONS={
@@ -23,14 +24,16 @@ export const MAX_BUBBLE_RADIUS = 60;
 export const MIN_BUBBLE_RADIUS = 10;
 export const DEFAULT_BUBBLE_MAX_POSX = 150;
 export const GRAVITY = 0.4;
-export const WALL_WIDTH = 40;
+export const WALL_WIDTH = 80;
 
 export const LEVEL_ONE = {
-     BUBBLE_CENTER_X  : WALL_WIDTH+30,
+     BUBBLE_CENTER_X  : WALL_WIDTH+20,
      BUBBLE_CENTER_Y  : 250,
-     BUBBLE_RADIUS  : 30,
+     BUBBLE_RADIUS  : 20,
      BG_IMG_SRC : bgImageLevelOne,
-     BUBBLES_COUNT : 1
+     BUBBLES_COUNT : 1,
+     isWallPresent : false,
+     LEVEL : 1
 }
 export const LEVEL_TWO = {
     BUBBLE_CENTER_X  : WALL_WIDTH + 60,
@@ -38,13 +41,18 @@ export const LEVEL_TWO = {
     BUBBLE_RADIUS  : 60,
     BG_IMG_SRC : bgImageLevelTwo,
     BUBBLES_COUNT : 1,
+    isWallPresent : false,
+    LEVEL :2
 }
-export const LEVEL_THREE = {
-    BUBBLE_CENTER_X  : WALL_WIDTH+25,
+export const LEVEL_THREE= {
+    BUBBLE_CENTER_X_ONE : WALL_WIDTH+30,
     BUBBLE_CENTER_Y  : 250,
-    BUBBLE_RADIUS_ONE  : 50,
-    BUBBLE_RADIUS_TWO : 30,
+    BUBBLE_CENTER_X_TWO : 800,
+    BUBBLE_RADIUS_ONE  : 30,
+    BUBBLE_RADIUS_TWO : 50,
     BG_IMG_SRC : bgImageLevelThree,
     BUBBLES_COUNT : 2,
+    isWallPresent : true,
+    LEVEL : 3
 }
 

@@ -1,8 +1,9 @@
 import heroImage from "/hero.png";
-import { PLAYER_DIMENSIONS } from "../constants";
+import { PLAYER_DIMENSIONS, WALL_WIDTH } from "../constants";
 import { CANVAS_DIMENSIONS } from "../constants";
 import { Movement } from "../utils/enum";
 import { GROUND_HEIGHT } from "../constants";
+import { Wall } from "./Wall";
 
 export class Player {
   heroImage: HTMLImageElement;
@@ -25,8 +26,9 @@ export class Player {
     this.ctx = ctx;
     this.playerHeight = PLAYER_DIMENSIONS.PLAYER_HEIGHT;
     this.playerWidth = PLAYER_DIMENSIONS.PLAYER_WIDTH
-    this.posX =
-      CANVAS_DIMENSIONS.CANVAS_WIDTH / 2 - this.playerWidth;
+    // this.posX =
+    //   CANVAS_DIMENSIONS.CANVAS_WIDTH / 2  - this.playerWidth;        //when walls are not present in between
+    this.posX = WALL_WIDTH;    //when walls are present in between
     this.posY =
       CANVAS_DIMENSIONS.CANVAS_HEIGHT - this.playerHeight - GROUND_HEIGHT;
     this.dx = 5;
@@ -96,11 +98,19 @@ export class Player {
   
     this.ctx.closePath();
   }
-  update() {
-    if (this.movement === Movement.LEFT && this.posX >= 0 ) {
+  update(isWallPresent : boolean) {
+    if (this.movement === Movement.LEFT && this.posX >= WALL_WIDTH  ) {
       this.posX -= this.dx;
     }
-    if (this.movement === Movement.RIGHT && this.posX + this.spriteWidth <= CANVAS_DIMENSIONS.CANVAS_WIDTH) {
+    //if wall is present in between
+    if(isWallPresent){
+
+      if(this.posX>= Wall.posX-this.playerWidth){
+        this.posX -=this.dx;
+    }
+    }
+    this.posX>= Wall.posX-this.playerWidth
+    if (this.movement === Movement.RIGHT && this.posX + this.spriteWidth <= CANVAS_DIMENSIONS.CANVAS_WIDTH-WALL_WIDTH) {
       this.posX += this.dx;
     }
   }

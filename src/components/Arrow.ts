@@ -13,7 +13,6 @@ export class Arrow{
     arrowImage : CanvasImageSource;
     isActive : boolean
     playerMovement ?: Movement;
-    // bubble : Bubble;
     bubbleArray ?: Bubble[];
     isBubbleArrowCollisionTrue ?: boolean[];
     isHittable : boolean = false;

@@ -6,6 +6,7 @@ import {  GroundWalls } from "./components/Ground";
 import { GameState } from "./utils/enum";
 import { Arrow } from "./components/Arrow";
 import { LevelLoader } from "./LevelLoader";
+import { Wall } from "./components/Wall";
 
 export class GameManager {
   canvas: HTMLCanvasElement;
@@ -35,6 +36,10 @@ export class GameManager {
   elapsedTime : number;
   startTime : number;
   timeRemaining : number;
+  level : number;
+  wall ?: Wall;
+  isWallPresent : boolean = false;
+  isBubbleToWallRight : boolean = false ;
   
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -60,11 +65,12 @@ export class GameManager {
 
     this.tempMovement = Movement.STATIONARY;
 
-    this.timeLimit = 2 * 1000 * 60 ; // 2 minutes
+    this.timeLimit = 40 * 1000 ; // 40 seconds
     this.startTime = Date.now();
     this.timeRemaining = this.timeLimit;
     this.elapsedTime = 0;
 
+    this.level = 1;
     this.levelLoader.loadLevel(0);  //start with level 0
     
     this.start();
@@ -107,8 +113,11 @@ export class GameManager {
   //initializes components
   initialSetup() {
     this.player = new Player(this.ctx);
-    // this.bubble = new Bubble(this.ctx, this.numberOfBubbles, this.bubbleRadius, BUBBLE_CENTER_X, BUBBLE_CENTER_Y);
     this.ground = new GroundWalls(this.ctx);
+
+    //change the number during custom mapping
+    this.wall = new Wall(this.ctx, 0,0,13,14); 
+
     Bubble.bubbleArray = this.bubbleArray!;
   }
 
@@ -169,10 +178,20 @@ export class GameManager {
       bubble.draw(bubble.centerX, bubble.centerY);
     });
 
+    
+    //draw default walls
+    this.wall?.drawDefaultWalls();
+    
     //draw ground
-    this.ground?.draw();
+    this.ground?.draw(this.level);
+
+    //draw walls in between if present
+    if(this.isWallPresent){
+      this.wall?.drawExtraWalls();
+    }
     if(this.bubbleArray?.length==0){
       // this.waitingStateRender();
+      this.level+=1;
       this.levelLoader.loadNextLevel();
     }
   }
@@ -230,7 +249,7 @@ export class GameManager {
       this.endGameStateRender();
     }
 
-    this.player?.update();
+    this.player?.update(this.isWallPresent);
 
     //arrow splits bubbles
     this.bubbleArray!.forEach((bubble, index) => {
@@ -252,16 +271,16 @@ export class GameManager {
     this.bubbleArray!.forEach((bubble) => {
       //change the direction of bubbble bouncing
 
-      bubble.update();
+      bubble.update(this.isWallPresent, this.isBubbleToWallRight);
     });
 
     this.arrow?.update();
   }
 
   start() {
+    this.checkCollision();
     this.update();
     this.draw();
-    this.checkCollision();
     this.start = this.start.bind(this);
     requestAnimationFrame(this.start);
   }
