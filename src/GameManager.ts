@@ -116,7 +116,7 @@ export class GameManager {
     this.ground = new GroundWalls(this.ctx);
 
     //change the number during custom mapping
-    this.wall = new Wall(this.ctx, 0,0,13,14); 
+    this.wall = new Wall(this.ctx, 0,0,13); 
 
     Bubble.bubbleArray = this.bubbleArray!;
   }
@@ -181,7 +181,7 @@ export class GameManager {
     
     //draw default walls
     this.wall?.drawDefaultWalls();
-    
+
     //draw ground
     this.ground?.draw(this.level);
 

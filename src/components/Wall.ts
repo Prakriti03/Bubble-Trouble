@@ -9,7 +9,7 @@ export class Wall{
     ctx : CanvasRenderingContext2D;
     wallImage : CanvasImageSource;
     disappearing : boolean = false;
-    constructor(ctx: CanvasRenderingContext2D, posX : number, posY : number, width : number, height : number){
+    constructor(ctx: CanvasRenderingContext2D, posY : number, width : number, height : number){
 
         Wall.posX = (CANVAS_DIMENSIONS.CANVAS_WIDTH-WALL_WIDTH)/2;
         Wall.posY = posY;

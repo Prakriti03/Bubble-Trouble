@@ -1,7 +1,6 @@
 import bgImageLevelOne from "/background.png"
 import bgImageLevelTwo from "/bgImage2.jpeg"
 import bgImageLevelThree from "/bgImage3.jpeg"
-import { Wall } from "./components/Wall"
 // import bgImageLevelFour from "/bgImage4.png"
 
 export const CANVAS_DIMENSIONS={
