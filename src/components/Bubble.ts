@@ -1,6 +1,12 @@
-// import { GRAVITY } from "../constants";
-import { BUBBLE_DY, BUBBLE_DX, GROUND_HEIGHT, CANVAS_DIMENSIONS, WALL_WIDTH } from "../constants";
-import { BUBBLE_CENTER_X, BUBBLE_CENTER_Y, MAX_BUBBLE_RADIUS } from "../constants";
+import { GameManager } from "../GameManager";
+import { GROUND_HEIGHT, CANVAS_DIMENSIONS, WALL_WIDTH } from "../constants";
+import {
+  BUBBLE_CENTER_X,
+  BUBBLE_CENTER_Y,
+  MAX_BUBBLE_RADIUS,
+  BUBBLE_DY,
+  BUBBLE_DX,
+} from "../constants";
 import { PLAYER_DIMENSIONS } from "../constants";
 import { GRAVITY } from "../constants";
 import { Wall } from "./Wall";
@@ -13,21 +19,22 @@ export class Bubble {
   dy: number;
   dx: number;
   numberOfBubbles: number;
-  // isHittable: boolean = false;
   bubblePlayerDx?: number;
   bubblePlayerDy?: number;
   bubblePlayerDistance?: number;
   closestPlayerPosX?: number;
   closestPlayerPosY?: number;
-  static bubbleArray: Bubble[] = [];
+  // static bubbleArray: Bubble[] = [];
   isBubbleArrowCollisionTrue?: boolean;
   isPlayerBubbleCollisionTrue?: boolean;
-  mass : number;
+  mass: number;
   gravity: number;
   constructor(
     ctx: CanvasRenderingContext2D,
     numberOfBubbles: number,
-    radius: number, bubbleCenterX : number, bubbleCenterY : number
+    radius: number,
+    bubbleCenterX: number,
+    bubbleCenterY: number
   ) {
     this.ctx = ctx;
     this.centerX = bubbleCenterX;
@@ -39,7 +46,8 @@ export class Bubble {
     this.numberOfBubbles = numberOfBubbles;
     this.mass = this.radius;
   }
-  draw(centerX: number, centerY: number) {
+
+  getBallGradient(highlightColor : string, mainColor: string, shadowColor : string ){
     const gradient = this.ctx.createRadialGradient(
       this.centerX - this.radius / 3, // Inner circle x
       this.centerY - this.radius / 3, // Inner circle y
@@ -50,9 +58,16 @@ export class Bubble {
     );
 
     // Define the gradient color stops
-    gradient.addColorStop(0, "white"); // Highlight color
-    gradient.addColorStop(0.5, "red"); // Main color
-    gradient.addColorStop(1, "darkred"); // Shadow color
+    gradient.addColorStop(0, highlightColor); 
+    gradient.addColorStop(0.5, mainColor); 
+    gradient.addColorStop(1, shadowColor); 
+
+    return gradient;
+
+  }
+
+  draw(centerX: number, centerY: number) {
+    const gradient = this.getBallGradient('white', 'red', 'darkred');
 
     this.ctx.beginPath();
     this.ctx.arc(centerX, centerY, this.radius, 0, 2 * Math.PI, false);
@@ -60,37 +75,53 @@ export class Bubble {
     this.ctx.fill();
     this.ctx.closePath();
   }
+
   calculateInitialVelocity(radius: number): number {
-    const baseVelocity = -9; // Base upward velocity value
-    const maxRadius = MAX_BUBBLE_RADIUS; 
-    const velocityScalingFactor = (radius / maxRadius); // Linear scaling factor
+    const baseVelocity = -4; // Base upward velocity value
+    const maxRadius = MAX_BUBBLE_RADIUS;
+    const velocityScalingFactor = radius / maxRadius; // Linear scaling factor
     return baseVelocity * (1 + velocityScalingFactor); // Adjusted velocity
   }
-  update(isWallPresent : boolean, isBubbleToWallRight : boolean) {
+
+
+  update(isWallPresent: boolean, isBubbleToWallRight: boolean) {
     this.dy += this.gravity;
     this.centerX += this.dx;
     this.centerY += this.dy;
 
-    if (this.centerY + this.radius >= CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT) {
-      this.centerY = CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT - this.radius;
-      this.dy =  this.calculateInitialVelocity(this.radius); 
+    if (
+      this.centerY + this.radius >=
+      CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT
+    ) {
+      this.centerY =
+        CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT - this.radius;
+      this.dy = this.calculateInitialVelocity(this.radius);
     }
 
-    if (this.centerX + this.radius >= CANVAS_DIMENSIONS.CANVAS_WIDTH -WALL_WIDTH || this.centerX - this.radius <= WALL_WIDTH) {
-      this.dx *= -1; 
+    if (
+      this.centerX + this.radius >=
+        CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH ||
+      this.centerX - this.radius <= WALL_WIDTH
+    ) {
+      this.dx *= -1;
     }
 
-    if(isWallPresent){
-      if(isBubbleToWallRight ){
-        console.log("bubble is at right side")
+    if (isWallPresent) {
+      if (isBubbleToWallRight) {
+        console.log("bubble is at right side");
       }
-    
-      if((this.centerX + this.radius>= Wall.posX && this.centerX+this.radius<=Wall.posX+WALL_WIDTH/2) || (this.centerX - this.radius<= Wall.posX +WALL_WIDTH/2 && this.centerX+this.radius>Wall.posX) ){
+
+      if (
+        (this.centerX + this.radius >= Wall.posX &&
+          this.centerX + this.radius <= Wall.posX + WALL_WIDTH / 2) ||
+        (this.centerX - this.radius <= Wall.posX + WALL_WIDTH / 2 &&
+          this.centerX + this.radius > Wall.posX)
+      ) {
         this.dx *= -1;
       }
+    }
   }
-  }
-  
+
   //check collision with player
   checkCollision(
     playerPosX: number,
@@ -123,38 +154,45 @@ export class Bubble {
       this.isPlayerBubbleCollisionTrue = false;
     }
   }
-  splitBubbles() {    
+
+  splitBubbles() {
     this.radius /= 2;
 
-
-    const bubble1 = new Bubble(this.ctx, this.numberOfBubbles, this.radius, this.centerX, this.centerY);
+    const bubble1 = new Bubble(
+      this.ctx,
+      this.numberOfBubbles,
+      this.radius,
+      this.centerX,
+      this.centerY
+    );
     bubble1.centerX = this.centerX - this.radius;
     bubble1.centerY = this.centerY;
     bubble1.dx = -Math.abs(this.dx); //move left after splitting
-    bubble1.dy = this.calculateInitialVelocity(this.radius)* 0.7;
+    bubble1.dy = this.calculateInitialVelocity(this.radius) * 0.8;
     // bubble1.radius = this.radius;
-   
 
     //create second new bubble
-    const bubble2 = new Bubble(this.ctx, this.numberOfBubbles, this.radius, BUBBLE_CENTER_X, BUBBLE_CENTER_Y);
+    const bubble2 = new Bubble(
+      this.ctx,
+      this.numberOfBubbles,
+      this.radius,
+      BUBBLE_CENTER_X,
+      BUBBLE_CENTER_Y
+    );
     // bubble2.centerX = this.centerX + this.radius;
     bubble2.centerX = this.centerX + this.radius;
 
     bubble2.centerY = this.centerY;
     bubble2.dx = Math.abs(this.dx); //move right after splitting
-    bubble2.dy = this.calculateInitialVelocity(this.radius) * 0.7;  //animation after splitting 
+    bubble2.dy = this.calculateInitialVelocity(this.radius) * 0.8; //animation after splitting
     // bubble2.radius = this.radius;
-  
 
-    const index = Bubble.bubbleArray.indexOf(this);
+    const index = GameManager.bubbleArray!.indexOf(this);
 
-    if (index >= 0 && index < Bubble.bubbleArray.length) {
-      Bubble.bubbleArray.splice(index, 1);
+    if (index >= 0 && index < GameManager.bubbleArray!.length) {
+      GameManager.bubbleArray!.splice(index, 1);
     }
 
-    Bubble.bubbleArray.push(bubble1, bubble2);
- 
-
+    GameManager.bubbleArray!.push(bubble1, bubble2);
   }
-  
 }
