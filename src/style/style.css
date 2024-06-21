@@ -3,9 +3,13 @@
   padding: 0;
   box-sizing: border-box;
 }
-.canvas-container{
+body{
   background-color: darkgrey;
   height: 100vh;
   display: flex;
   justify-content: center;
+  align-items: center;
+}
+#canvas{
+  background-color: aqua;
 }

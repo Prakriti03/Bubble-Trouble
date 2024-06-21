@@ -1,4 +1,5 @@
 import { GameManager } from './GameManager';
+import { StartScreen } from './StartScreen';
 import { CANVAS_DIMENSIONS } from './constants';
 import './style/style.css'
 
@@ -7,6 +8,6 @@ canvas.width = CANVAS_DIMENSIONS.CANVAS_WIDTH;
 canvas.height = CANVAS_DIMENSIONS.CANVAS_HEIGHT;
 canvas.style.border = "1px solid black";
 
-
-new GameManager(canvas);
+new StartScreen(canvas);
+// new GameManager(canvas);
 
