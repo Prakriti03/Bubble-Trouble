@@ -1,7 +1,5 @@
 import { CustomGamesCreator } from "./CustomGameCreator";
-import { GameManager } from "./GameManager";
 import { LevelSelector } from "./LevelSelector";
-import { CANVAS_DIMENSIONS } from "./constants";
 export class StartScreen {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;

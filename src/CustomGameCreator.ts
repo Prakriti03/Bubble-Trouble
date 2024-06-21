@@ -1,6 +1,5 @@
 import { CANVAS_DIMENSIONS, GROUND_HEIGHT, LEVEL_ONE, PLAYER_DIMENSIONS } from "./constants";
 import { GroundWalls } from "./components/Ground";
-import { Player } from "./components/Player";
 import groundImg from '/wall.jpg'
 import { GameManager } from "./GameManager";
 import { Bubble } from "./components/Bubble";
@@ -98,15 +97,15 @@ export class CustomGamesCreator{
         }
         document.body.appendChild(button);
     }
-    private setupWall(){
-        const buttonWall = document.createElement("button");
-        buttonWall.innerText = "Wall";
-        buttonWall.onclick=()=>{
+    // private setupWall(){
+    //     const buttonWall = document.createElement("button");
+    //     buttonWall.innerText = "Wall";
+    //     buttonWall.onclick=()=>{
 
-        }
-    }
-    private drawWall(){
+    //     }
+    // }
+    // private drawWall(){
         
-    }
+    // }
 
 }

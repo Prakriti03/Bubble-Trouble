@@ -1,4 +1,4 @@
-import { GameManager } from './GameManager';
+// import { GameManager } from './GameManager';
 import { StartScreen } from './StartScreen';
 import { CANVAS_DIMENSIONS } from './constants';
 import './style/style.css'
