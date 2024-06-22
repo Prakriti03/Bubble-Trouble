@@ -2,6 +2,7 @@ import { PLAYER_DIMENSIONS, WALL_WIDTH } from "../constants";
 import { CANVAS_DIMENSIONS } from "../constants";
 import { GROUND_HEIGHT } from "../constants";
 import { Movement } from "../utils/enum";
+import { Sprite } from "../Sprite";
 import { Wall } from "./Wall";
 import heroImage from "/hero.png";
 
@@ -20,6 +21,8 @@ export class Player {
   frameY: number;
   gameFrame: number;
   staggerFrame: number;
+  sprite!: Sprite;
+
   constructor(ctx: CanvasRenderingContext2D) {
     this.heroImage = new Image();
     this.heroImage.src = heroImage;
@@ -39,33 +42,43 @@ export class Player {
     this.staggerFrame = 20;
   }
 
+  get x() {
+    return this.posX;
+  }
+
+  get y() {
+    return this.posY;
+  }
+
+  get width(){
+    return this.playerWidth;
+  }
+
+  get height(){
+    return this.playerHeight;
+  }
+
   draw() {
     this.ctx.beginPath();
     if (this.movement === Movement.STATIONARY) {
-      this.ctx.drawImage(
-        this.heroImage,
+      this.sprite = new Sprite(
+        this.ctx,
+        heroImage,
         8,
         112,
-        31,
-        55,
         this.posX,
-        this.posY,
-        this.playerWidth,
-        this.playerHeight
+        this.posY
       );
     }
 
     if (this.movement === Movement.LEFT) {
-      this.ctx.drawImage(
-        this.heroImage,
+      this.sprite = new Sprite(
+        this.ctx,
+        heroImage,
         this.frameX * this.spriteWidth,
         57,
-        this.spriteWidth,
-        this.spriteHeight,
         this.posX,
-        this.posY,
-        this.spriteWidth,
-        this.spriteHeight
+        this.posY
       );
       if (this.gameFrame % this.staggerFrame == 0) {
         if (this.frameX < 3) this.frameX++;
@@ -74,16 +87,13 @@ export class Player {
       this.gameFrame++;
     }
     if (this.movement === Movement.RIGHT) {
-      this.ctx.drawImage(
-        this.heroImage,
+      this.sprite = new Sprite(
+        this.ctx,
+        heroImage,
         this.frameX * this.spriteWidth,
         0,
-        this.spriteWidth,
-        this.spriteHeight,
         this.posX,
-        this.posY,
-        this.spriteWidth,
-        this.spriteHeight
+        this.posY
       );
       if (this.gameFrame % this.staggerFrame == 0) {
         if (this.frameX < 3) this.frameX++;
@@ -101,7 +111,6 @@ export class Player {
     }
 
     //if wall is present in between
-
     if (isWallPresent) {
       if (this.posX >= Wall.posX - this.playerWidth) {
         this.posX -= this.dx;

@@ -36,21 +36,15 @@ export class LevelLoader {
 
   private applyLevelConfig(level: any) {
     this.gameManager.bgImage = new Image();
-    this.gameManager.bgImage.src = level.BG_IMG_SRC;
-    this.gameManager.level = level.LEVEL;
-    this.gameManager.numberOfBubbles = level.BUBBLES_COUNT;
+    this.gameManager.bgImage.src = level.imageSrc;
+    this.gameManager.level = level.level;
+    this.gameManager.numberOfBubbles = level.Bubbles.length;
     GameManager.bubbleArray = [];
     this.gameManager.isWallPresent = level.isWallPresent;
 
-    for (let i = 0; i < level.BUBBLES_COUNT; i++) {
-      const bubbleRadius =
-        i === 0
-          ? level.BUBBLE_RADIUS_ONE || level.BUBBLE_RADIUS
-          : level.BUBBLE_RADIUS_TWO || level.BUBBLE_RADIUS;
-      const bubbleCenterX =
-        i === 0
-          ? level.BUBBLE_CENTER_X_ONE || level.BUBBLE_CENTER_X
-          : level.BUBBLE_CENTER_X_TWO || level.BUBBLE_CENTER_X;
+    for (let i = 0; i < level.Bubbles.length; i++) {
+      const bubbleConfig = level.Bubbles[i];
+      const bubbleCenterX = bubbleConfig.centerX;
 
       //check if bubble is at the left or right side of wall
       if (bubbleCenterX >= Wall.posX + WALL_WIDTH) {
@@ -59,9 +53,9 @@ export class LevelLoader {
       this.bubble = new Bubble(
         this.gameManager.ctx,
         i,
-        bubbleRadius,
+        bubbleConfig.radius,
         bubbleCenterX,
-        level.BUBBLE_CENTER_Y
+        bubbleConfig.centerY,
       );
       GameManager.bubbleArray.push(this.bubble);
     }

@@ -200,21 +200,26 @@ export class GameManager {
 
   //Checks collision between arrow & bubbles, bubbles & player
   checkCollision() {
-    GameManager.bubbleArray!.forEach((bubble) => {
-      //check collision between player and bubble
-      bubble.checkCollision(
-        this.player!.posX,
-        this.player!.posY,
-        bubble.centerX,
-        bubble.centerY,
-        bubble.radius
-      );
 
-      if (bubble.isPlayerBubbleCollisionTrue) {
+    //check collision between player and bubble
+    GameManager.bubbleArray!.forEach((bubble)=>{
+      
+      //closest X-coordinate of player to the bubble
+      const closestX = Math.max(this.player!.posX, Math.min(bubble.x, this.player!.posX + this.player!.width));
+      //closest Y-coordinate of player to the bubble
+      const closestY = Math.max(this.player!.posY, Math.min(bubble.y, this.player!.posY + this.player!.height));
+
+      //distance between player and bubble
+      const distanceX = bubble.x - closestX;
+      const distanceY = bubble.y - closestY;
+      const distance = Math.sqrt(distanceX*distanceX + distanceY*distanceY );
+
+      if (distance<=bubble.r){
         this.gameState = GameState.END;
         this.endGameStateRender();
       }
-    });
+
+    })
 
     //check collision between bubble and arrow
     GameManager.bubbleArray!.forEach((bubble) => {

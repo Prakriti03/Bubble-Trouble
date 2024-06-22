@@ -7,7 +7,6 @@ import {
   BUBBLE_DY,
   BUBBLE_DX,
 } from "../constants";
-import { PLAYER_DIMENSIONS } from "../constants";
 import { GRAVITY } from "../constants";
 import { Wall } from "./Wall";
 
@@ -47,7 +46,11 @@ export class Bubble {
     this.mass = this.radius;
   }
 
-  getBallGradient(highlightColor : string, mainColor: string, shadowColor : string ){
+  getBallGradient(
+    highlightColor: string,
+    mainColor: string,
+    shadowColor: string
+  ) {
     const gradient = this.ctx.createRadialGradient(
       this.centerX - this.radius / 3, // Inner circle x
       this.centerY - this.radius / 3, // Inner circle y
@@ -58,16 +61,27 @@ export class Bubble {
     );
 
     // Define the gradient color stops
-    gradient.addColorStop(0, highlightColor); 
-    gradient.addColorStop(0.5, mainColor); 
-    gradient.addColorStop(1, shadowColor); 
+    gradient.addColorStop(0, highlightColor);
+    gradient.addColorStop(0.5, mainColor);
+    gradient.addColorStop(1, shadowColor);
 
     return gradient;
+  }
 
+  get x() {
+    return this.centerX;
+  }
+
+  get y() {
+    return this.centerY;
+  }
+
+  get r() {
+    return this.radius;
   }
 
   draw(centerX: number, centerY: number) {
-    const gradient = this.getBallGradient('white', 'red', 'darkred');
+    const gradient = this.getBallGradient("white", "red", "darkred");
 
     this.ctx.beginPath();
     this.ctx.arc(centerX, centerY, this.radius, 0, 2 * Math.PI, false);
@@ -82,7 +96,6 @@ export class Bubble {
     const velocityScalingFactor = radius / maxRadius; // Linear scaling factor
     return baseVelocity * (1 + velocityScalingFactor); // Adjusted velocity
   }
-
 
   update(isWallPresent: boolean, isBubbleToWallRight: boolean) {
     this.dy += this.gravity;
@@ -122,39 +135,6 @@ export class Bubble {
     }
   }
 
-  //check collision with player
-  checkCollision(
-    playerPosX: number,
-    playerPosY: number,
-    centerX: number,
-    centerY: number,
-    radius: number
-  ) {
-    //find the closest point on the player to the bubble
-    this.closestPlayerPosX = Math.max(
-      playerPosX,
-      Math.min(centerX, playerPosX + PLAYER_DIMENSIONS.PLAYER_WIDTH)
-    );
-    this.closestPlayerPosY = Math.max(
-      playerPosY,
-      Math.min(centerY, playerPosY + PLAYER_DIMENSIONS.PLAYER_HEIGHT)
-    );
-
-    //get distance between center of bubble and player'
-    this.bubblePlayerDx = centerX - this.closestPlayerPosX;
-    this.bubblePlayerDy = centerY - this.closestPlayerPosY;
-    this.bubblePlayerDistance = Math.sqrt(
-      this.bubblePlayerDx * this.bubblePlayerDx +
-        this.bubblePlayerDy * this.bubblePlayerDy
-    );
-
-    if (this.bubblePlayerDistance <= radius) {
-      this.isPlayerBubbleCollisionTrue = true;
-    } else {
-      this.isPlayerBubbleCollisionTrue = false;
-    }
-  }
-
   splitBubbles() {
     this.radius /= 2;
 
@@ -169,7 +149,6 @@ export class Bubble {
     bubble1.centerY = this.centerY;
     bubble1.dx = -Math.abs(this.dx); //move left after splitting
     bubble1.dy = this.calculateInitialVelocity(this.radius) * 0.8;
-    // bubble1.radius = this.radius;
 
     //create second new bubble
     const bubble2 = new Bubble(
@@ -179,13 +158,10 @@ export class Bubble {
       BUBBLE_CENTER_X,
       BUBBLE_CENTER_Y
     );
-    // bubble2.centerX = this.centerX + this.radius;
     bubble2.centerX = this.centerX + this.radius;
-
     bubble2.centerY = this.centerY;
     bubble2.dx = Math.abs(this.dx); //move right after splitting
     bubble2.dy = this.calculateInitialVelocity(this.radius) * 0.8; //animation after splitting
-    // bubble2.radius = this.radius;
 
     const index = GameManager.bubbleArray!.indexOf(this);
 

@@ -16,7 +16,7 @@ export class CustomGamesCreator{
         this.canvas = canvas;
         this.ctx = this.canvas.getContext('2d')!;
         this.bgImage = new Image();
-        this.bgImage.src = LEVEL_ONE.BG_IMG_SRC;
+        this.bgImage.src = LEVEL_ONE.imageSrc;
         this.ground = new GroundWalls(this.ctx);
         this.groundImg = new Image();
         this.groundImg.src = groundImg;
