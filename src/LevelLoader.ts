@@ -5,7 +5,7 @@ import { LEVEL_ONE, LEVEL_TWO, LEVEL_THREE, WALL_WIDTH } from "./constants";
 
 export class LevelLoader {
   private gameManager: GameManager;
-  private levels: any[];
+  public levels: any[];
   private currentLevelIndex: number;
   private bubble?: Bubble;
   level: number;

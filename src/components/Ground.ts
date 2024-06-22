@@ -21,7 +21,7 @@ export class GroundWalls {
     this.groundImg.src = groundImage;
   }
 
-  draw(level: number) {
+  draw() {
     this.ctx.beginPath();
     this.ctx.drawImage(
       this.groundImg,
@@ -49,11 +49,11 @@ export class GroundWalls {
       CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH - 100,
       CANVAS_DIMENSIONS.CANVAS_HEIGHT - 10
     );
-    this.drawTexts(
-      level.toString(),
-      (CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH) / 2 + 25,
-      CANVAS_DIMENSIONS.CANVAS_HEIGHT - 10
-    );
+    // this.drawTexts(
+    //   level.toString(),
+    //   (CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH) / 2 + 25,
+    //   CANVAS_DIMENSIONS.CANVAS_HEIGHT - 10
+    // );
   }
   
   drawTexts(text: string, posX: number, posY: number) {

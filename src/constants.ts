@@ -30,7 +30,7 @@ export const LEVEL_ONE={
   Bubbles: [ { 
     centerX  : WALL_WIDTH+30,
     centerY  : 250,
-    radius  : 30}],
+    radius  : 10}],
   imageSrc: bgImageLevelOne,
   isWallPresent : false,
   level : 1,
