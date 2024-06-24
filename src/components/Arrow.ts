@@ -15,6 +15,7 @@ export class Arrow {
   bubbleArray?: Bubble[];
   isBubbleArrowCollisionTrue?: boolean[];
   isHittable: boolean = false;
+  static isSticky : boolean = false;
 
   constructor(ctx: CanvasRenderingContext2D, posX: number) {
     this.ctx = ctx;
@@ -34,10 +35,14 @@ export class Arrow {
   }
 
   update() {
+    if(Arrow.isSticky && this.posY<=0){
+      return
+    }
     if (this.posY <= 0) {
       this.isActive = false;
     }
     if (this.isActive) {
+     
       this.posY -= 6;
     }
   }

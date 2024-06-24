@@ -11,6 +11,11 @@ import { PowerUp } from "./components/Power-ups";
 import { getRandomInt } from "./utils/utils";
 import { checkCollision } from "./utils/utils";
 import { Score } from "./components/Score";
+import arrowAudioSrc from "/Harpoon-audio.mp3"
+import splitAudioSrc from "/pop-audio.mp3"
+import wallSlideAudioSrc from "/Sliding-audio.mp3"
+import playerCollideAudioSrc from "/punch-audio.mp3"
+
 
 export class GameManager {
   canvas: HTMLCanvasElement;
@@ -40,6 +45,7 @@ export class GameManager {
   elapsedTime: number;
   startTime: number;
   timeRemaining: number;
+  adjustedTime : number;
   level?: number;
   wall?: Wall;
   isWallPresent: boolean = false;
@@ -50,6 +56,8 @@ export class GameManager {
   isCollisionPlayerPowerUp : boolean = false;
   score ?: Score;
   powerUpArray : PowerUp[]=[];
+  static wallSlidingSound : HTMLAudioElement;
+  static punchAudio : HTMLAudioElement;
 
   constructor(canvas: HTMLCanvasElement, customLevelConfig?: any) {
     this.canvas = canvas;
@@ -77,9 +85,18 @@ export class GameManager {
     this.startTime = Date.now();
     this.timeRemaining = this.timeLimit;
     this.elapsedTime = 0;
+    this.adjustedTime = 0;
 
 
     this.customLevelConfig = customLevelConfig;
+
+    GameManager.wallSlidingSound = new Audio(wallSlideAudioSrc);
+    GameManager.wallSlidingSound.loop = false;
+    GameManager.punchAudio = new Audio(playerCollideAudioSrc);
+    GameManager.punchAudio.loop = false;
+
+   
+
 
     if (this.customLevelConfig) {
       this.levelLoader.levels.push(this.customLevelConfig);
@@ -111,6 +128,8 @@ export class GameManager {
     //when space key is pressed for arrows
     document.addEventListener("keydown", (key) => {
       if (key.code === "Space") {
+        const arrowSound = new Audio(arrowAudioSrc);   //need to shift this to constant
+        arrowSound.play();
         this.arrow = new Arrow(this.ctx, this.player!.posX);
         this.arrow.isHittable = true;
         this.player!.movement = Movement.STATIONARY;
@@ -136,7 +155,6 @@ export class GameManager {
       WALL_WIDTH / 2,
       CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT
     );
-    console.log(`${this.wall!.height}`);
 
     this.score = new Score(this.ctx)
   }
@@ -182,7 +200,6 @@ export class GameManager {
 
     //draw bubbles
     GameManager.bubbleArray!.forEach((bubble) => {
-      console.log(`${GameManager.bubbleArray!.length}`);
       bubble.draw(bubble.centerX, bubble.centerY);
     });
 
@@ -207,12 +224,6 @@ export class GameManager {
     this.score?.draw();
   }
   drawTimer() {
-    // if (this.isCollisionPlayerPowerUp) {
-    //   this.timeRemaining += 10000; 
-    //   // this.powerUp = undefined;
-    //   console.log(`time remaining!!! : ${this.timeRemaining}`)
-    // }
-    console.log(`time reamining inside drawTime !!1 : ${this.timeRemaining}`)
     const minutes = Math.floor(this.timeRemaining / 60000);
     const seconds = Math.floor((this.timeRemaining % 60000) / 1000);
     const timeString = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
@@ -222,6 +233,7 @@ export class GameManager {
     this.ctx.fillText(timeString, this.canvas.width - 100, 50);
   }
   resetTimer() {
+    this.adjustedTime = 0;
     this.startTime = Date.now();
     this.elapsedTime = 0;
     this.timeRemaining = this.timeLimit;
@@ -236,6 +248,7 @@ export class GameManager {
 
   //Checks collision between arrow & bubbles, bubbles & player
   checkCollision() {
+    if (this.gameState !== GameState.RUNNING) return;
     //check collision between player and bubble
     GameManager.bubbleArray!.forEach((bubble) => {
       //closest X-coordinate of player to the bubble
@@ -255,8 +268,9 @@ export class GameManager {
       const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
 
       if (distance <= bubble.r) {
+        GameManager.punchAudio.play();
         this.gameState = GameState.END;
-        this.endGameStateRender();
+        // this.endGameStateRender();
       }
     });
 
@@ -268,6 +282,8 @@ export class GameManager {
         bubble.radius
       );
     });
+
+    console.log(this.elapsedTime);
 
     //check collision between player and power-ups
     this.powerUpArray.forEach((powerUp, index)=>{
@@ -288,31 +304,38 @@ export class GameManager {
     
   }
   handlePowerUpCollision(powerUp: PowerUp, index: number) {
+    
     if (powerUp.powerUpOption == 1) {
       this.score?.increment();
     }
-  
+    else if(powerUp.powerUpOption == 2){
+      Arrow.isSticky = true;
+    }
+    else{
+      this.adjustedTime -= 10000;
+    }
     // Remove the power-up from the array
     this.powerUpArray.splice(index, 1);
   }
 
   endGameStateRender() {
+    
     this.gameState = GameState.END;
     this.ctx.fillStyle = "green";
     this.ctx.fillRect(100, 100, 100, 100);
   }
 
   update() {
+    if (this.gameState !== GameState.RUNNING) return;
     this.powerUpArray.forEach(powerUp => powerUp.update());
 
-    if (this.gameState !== GameState.RUNNING) return;
 
     this.elapsedTime = Date.now() - this.startTime;
-    this.timeRemaining = this.timeLimit - this.elapsedTime;
+    this.timeRemaining = this.timeLimit - this.elapsedTime - this.adjustedTime;
 
     if (this.timeRemaining <= 0) {
       this.gameState = GameState.END;
-      this.endGameStateRender();
+      // this.endGameStateRender();
     }
 
     if (this.wall!.height <= 0) {
@@ -328,6 +351,8 @@ export class GameManager {
         this.arrow!.isHittable &&
         this.arrow!.isActive
       ) {
+        const bubblePopSound = new Audio(splitAudioSrc);
+        bubblePopSound.play();
         if (bubble.radius < 10) {
           GameManager.bubbleArray?.splice(index, 1);
         } else {
@@ -372,6 +397,11 @@ export class GameManager {
       }
     }
     if (allBubblesPopped) {
+      if(this.wall!.height<=0){
+        return
+      }
+      GameManager.wallSlidingSound.play();
+      // wallSlidingSound.loop = false;
       this.wall?.startDisappearing();
     }
   }

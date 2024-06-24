@@ -24,7 +24,6 @@ export class Sprite {
     this.drawSprite();
   }
   drawSprite() {
-    console.log("inside draw sprite")
    
       this.ctx.drawImage(
         this.img,

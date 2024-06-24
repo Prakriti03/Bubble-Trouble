@@ -30,7 +30,6 @@ export class GroundWalls {
       this.width,
       this.height
     );
-    console.log("inside draw!!!")
     this.ctx.closePath();
     this.ctx.beginPath();
     this.ctx.closePath();

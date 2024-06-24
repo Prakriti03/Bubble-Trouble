@@ -24,7 +24,6 @@ export class Wall {
     this.ctx = ctx;
     this.wallImage = new Image();
     this.wallImage.src = wallImage;
-    console.log(`wall height og : ${height}`)
   }
 
 
