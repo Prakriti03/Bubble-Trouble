@@ -25,6 +25,11 @@ export const DEFAULT_BUBBLE_MAX_POSX = 150;
 export const GRAVITY = 0.1;
 export const WALL_WIDTH = 80;
 
+export const POWER_UPS = {
+  WIDTH : 30,
+  HEIGHT : 30,
+}
+
 
 export const LEVEL_ONE={
   Bubbles: [ { 
@@ -32,7 +37,14 @@ export const LEVEL_ONE={
     centerY  : 250,
     radius  : 10}],
   imageSrc: bgImageLevelOne,
-  isWallPresent : false,
+  walls : [{
+    posX : 100,
+    posY : 200,
+    width : 50,
+    height : 200
+  }
+  ],
+  isWallPresent : 0,
   level : 1,
 }
 export const LEVEL_TWO={
@@ -41,7 +53,7 @@ export const LEVEL_TWO={
     centerY  : 250,
     radius  : 60}],
   imageSrc: bgImageLevelTwo,
-  isWallPresent: false,
+  isWallPresent: 0,
   level : 2,
 }
 export const LEVEL_THREE={
@@ -55,7 +67,11 @@ export const LEVEL_THREE={
       radius : 50
     }
     ],
+  walls: [
+    { posX: 150, posY: 250, width: 70, height: 150 },
+    { posX: 350, posY: 100, width: 120, height: 120 },
+  ],
   imageSrc: bgImageLevelThree,
-  isWallPresent: true,
+  isWallPresent: 1,
   level : 3,
 }

@@ -28,6 +28,7 @@ export class Bubble {
   isPlayerBubbleCollisionTrue?: boolean;
   mass: number;
   gravity: number;
+  wall : Wall;
   constructor(
     ctx: CanvasRenderingContext2D,
     numberOfBubbles: number,
@@ -44,6 +45,13 @@ export class Bubble {
     this.dx = BUBBLE_DX;
     this.numberOfBubbles = numberOfBubbles;
     this.mass = this.radius;
+    this.wall = new Wall(
+      this.ctx,
+      (CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH) / 2,
+      0,
+      WALL_WIDTH / 2,
+      CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT
+    );
   }
 
   getBallGradient(
@@ -97,7 +105,9 @@ export class Bubble {
     return baseVelocity * (1 + velocityScalingFactor); // Adjusted velocity
   }
 
-  update(isWallPresent: boolean, isBubbleToWallRight: boolean) {
+  //need to move the logic regarding wall to GameManager.ts
+
+  update(isWallPresent: boolean) {
     this.dy += this.gravity;
     this.centerX += this.dx;
     this.centerY += this.dy;
@@ -120,15 +130,12 @@ export class Bubble {
     }
 
     if (isWallPresent) {
-      if (isBubbleToWallRight) {
-        console.log("bubble is at right side");
-      }
 
       if (
-        (this.centerX + this.radius >= Wall.posX &&
-          this.centerX + this.radius <= Wall.posX + WALL_WIDTH / 2) ||
-        (this.centerX - this.radius <= Wall.posX + WALL_WIDTH / 2 &&
-          this.centerX + this.radius > Wall.posX)
+        (this.centerX + this.radius >= this.wall.posX &&
+          this.centerX + this.radius <= this.wall.posX + WALL_WIDTH / 2) ||
+        (this.centerX - this.radius <= this.wall.posX + WALL_WIDTH / 2 &&
+          this.centerX + this.radius > this.wall.posX)
       ) {
         this.dx *= -1;
       }

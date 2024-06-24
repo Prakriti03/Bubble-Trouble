@@ -22,6 +22,7 @@ export class Player {
   gameFrame: number;
   staggerFrame: number;
   sprite!: Sprite;
+  wall : Wall;
 
   constructor(ctx: CanvasRenderingContext2D) {
     this.heroImage = new Image();
@@ -40,6 +41,13 @@ export class Player {
     this.frameY = 0;
     this.gameFrame = 0;
     this.staggerFrame = 20;
+    this.wall = new Wall(
+      this.ctx,
+      (CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH) / 2,
+      0,
+      WALL_WIDTH / 2,
+      CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT
+    );
   }
 
   get x() {
@@ -105,6 +113,7 @@ export class Player {
     this.ctx.closePath();
   }
 
+
   update(isWallPresent: boolean) {
     if (this.movement === Movement.LEFT && this.posX >= WALL_WIDTH) {
       this.posX -= this.dx;
@@ -112,11 +121,11 @@ export class Player {
 
     //if wall is present in between
     if (isWallPresent) {
-      if (this.posX >= Wall.posX - this.playerWidth) {
+      if (this.posX >= this.wall.posX - this.playerWidth) {
         this.posX -= this.dx;
       }
     }
-    this.posX >= Wall.posX - this.playerWidth;
+    this.posX >= this.wall.posX - this.playerWidth;
     if (
       this.movement === Movement.RIGHT &&
       this.posX + this.spriteWidth <=

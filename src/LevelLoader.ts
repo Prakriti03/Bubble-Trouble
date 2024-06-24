@@ -1,7 +1,6 @@
 import { GameManager } from "./GameManager";
 import { Bubble } from "./components/Bubble";
-import { Wall } from "./components/Wall";
-import { LEVEL_ONE, LEVEL_TWO, LEVEL_THREE, WALL_WIDTH } from "./constants";
+import { LEVEL_ONE, LEVEL_TWO, LEVEL_THREE } from "./constants";
 
 export class LevelLoader {
   private gameManager: GameManager;
@@ -9,6 +8,7 @@ export class LevelLoader {
   private currentLevelIndex: number;
   private bubble?: Bubble;
   level: number;
+
 
   constructor(gameManager: GameManager) {
     this.gameManager = gameManager;
@@ -46,10 +46,7 @@ export class LevelLoader {
       const bubbleConfig = level.Bubbles[i];
       const bubbleCenterX = bubbleConfig.centerX;
 
-      //check if bubble is at the left or right side of wall
-      if (bubbleCenterX >= Wall.posX + WALL_WIDTH) {
-        this.gameManager.isBubbleToWallRight = true;
-      }
+
       this.bubble = new Bubble(
         this.gameManager.ctx,
         i,
