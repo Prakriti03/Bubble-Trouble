@@ -3,6 +3,8 @@ import { Bubble } from "./Bubble";
 import { GROUND_HEIGHT, CANVAS_DIMENSIONS } from "../constants";
 import { Movement } from "../utils/enum";
 
+/* The Arrow class represents an arrow object in a canvas game, with properties and methods for
+drawing, updating, and checking collision with bubbles. */
 export class Arrow {
   posX: number;
   posY: number;
@@ -12,13 +14,11 @@ export class Arrow {
   playerMovement?: Movement;
   bubbleArray?: Bubble[];
   isBubbleArrowCollisionTrue?: boolean[];
-  isHittable ?: boolean =false;
-  static isSticky : boolean = false;
+  isHittable?: boolean = false;
+  static isSticky: boolean = false;
 
   constructor(ctx: CanvasRenderingContext2D, posX: number) {
     this.ctx = ctx;
-    // this.bubble = new Bubble(ctx, 1, 40);
-    // this.posX = posX + this.player.playerWidth / 2;
     this.posX = posX;
     this.posY = CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT;
     this.arrowImage = new Image();
@@ -33,18 +33,17 @@ export class Arrow {
   }
 
   update() {
-    if(Arrow.isSticky && this.posY<=0){
-      return
+    if (Arrow.isSticky && this.posY <= 0) {
+      return;
     }
     if (this.posY <= 0) {
       this.isActive = false;
     }
     if (this.isActive) {
-     
       this.posY -= 6;
     }
   }
-  
+
   //check collision with bubbles
   checkCollision(centerX: number, centerY: number, bubbleRadius: number) {
     if (

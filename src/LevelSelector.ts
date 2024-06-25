@@ -1,5 +1,7 @@
 import { GameManager } from "./GameManager";
 
+/* The `LevelSelector` class creates a user interface for selecting game levels and handles event
+listeners for loading selected levels in a game manager. */
 export class LevelSelector {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;

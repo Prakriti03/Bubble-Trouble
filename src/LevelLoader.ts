@@ -1,8 +1,16 @@
 import { GameManager } from "./GameManager";
 import { Bubble } from "./components/Bubble";
 import { Wall } from "./components/Wall";
-import { LEVEL_ONE,LEVEL_TWO, LEVEL_THREE, LEVEL_FOUR, LEVEL_FIVE } from "./utils/levels";
+import {
+  LEVEL_ONE,
+  LEVEL_TWO,
+  LEVEL_THREE,
+  LEVEL_FOUR,
+  LEVEL_FIVE,
+} from "./utils/levels";
 
+/* The LevelLoader class in TypeScript manages loading levels for a game, applying level configurations
+such as background image, bubbles, and walls. */
 export class LevelLoader {
   private gameManager: GameManager;
   public levels: any[];
@@ -58,7 +66,6 @@ export class LevelLoader {
       GameManager.bubbleArray.push(this.bubble);
     }
 
-    // Load walls
     if (level.wallsPosX && level.wallsPosX.length > 0) {
       level.wallsPosX.forEach((wallX: number) => {
         const wall = new Wall(this.gameManager.ctx, wallX);

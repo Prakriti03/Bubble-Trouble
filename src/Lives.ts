@@ -1,5 +1,7 @@
 import { CANVAS_DIMENSIONS, WALL_WIDTH } from "./constants";
 
+/* The `Lives` class in TypeScript is responsible for drawing the remaining lives of players on a
+canvas based on the player index. */
 export class Lives {
   ctx: CanvasRenderingContext2D;
   constructor(ctx: CanvasRenderingContext2D) {

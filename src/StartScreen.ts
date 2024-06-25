@@ -1,8 +1,12 @@
 import { CustomGamesCreator } from "./CustomGameCreator";
 import { LevelSelector } from "./LevelSelector";
+import { CANVAS_DIMENSIONS } from "./constants";
 import backgroundImgSrc from "/wall.jpg";
 import foregroundImgSrc from "/start-screen.png";
-import { CANVAS_DIMENSIONS } from "./constants";
+
+
+/* The `StartScreen` class in TypeScript creates a start screen UI with buttons for one player, two
+players, and creating a game, along with event listeners for each button. */
 export class StartScreen {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;

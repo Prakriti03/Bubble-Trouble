@@ -1,3 +1,5 @@
+/* The `Sprite` class in TypeScript represents a sprite object with properties for image, position, and
+drawing on a canvas. */
 export class Sprite {
   img: HTMLImageElement;
   posX: number;

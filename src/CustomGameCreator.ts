@@ -1,15 +1,14 @@
-import {
-  CANVAS_DIMENSIONS,
-  GROUND_HEIGHT,
-} from "./constants";
-import { LEVEL_FIVE , LEVEL_ONE} from "./utils/levels";
-import groundImg from "/wall.jpg";
-import { GameManager } from "./GameManager";
 import { GroundWalls } from "./components/Ground";
 import { Bubble } from "./components/Bubble";
 import { Wall } from "./components/Wall";
+import { GameManager } from "./GameManager";
 import { Lives } from "./Lives";
+import { CANVAS_DIMENSIONS, GROUND_HEIGHT } from "./constants";
+import { LEVEL_FIVE, LEVEL_ONE } from "./utils/levels";
+import groundImg from "/wall.jpg";
 
+/* The `CustomGamesCreator` class in TypeScript creates a custom game level with bubbles, walls, and
+interactive elements on a canvas. */
 export class CustomGamesCreator {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
@@ -32,18 +31,18 @@ export class CustomGamesCreator {
   currentWall?: Wall;
   addWallButton?: HTMLButtonElement;
   selectedWallIndex: number = -1;
-  life : Lives;
+  life: Lives;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.ctx = this.canvas.getContext("2d")!;
     this.bgImage = new Image();
     this.bgImage.src = LEVEL_FIVE.imageSrc;
-    this.ground = new GroundWalls(this.ctx,6);
+    this.ground = new GroundWalls(this.ctx, 6);
     this.groundImg = new Image();
     this.groundImg.src = groundImg;
     this.wall = new Wall(this.ctx, 0);
-    this.life = new Lives(this.ctx)
+    this.life = new Lives(this.ctx);
 
     GameManager.bubbleArray = [];
 
@@ -62,10 +61,7 @@ export class CustomGamesCreator {
     };
   }
 
-  //before player begins the game
   private setupStaticLevel(): void {
-    
-    //default background
     this.ctx.drawImage(
       this.bgImage,
       0,
@@ -74,39 +70,8 @@ export class CustomGamesCreator {
       this.canvas.height
     );
     this.wall?.drawDefaultWalls();
-    // this.ground.draw();
   }
 
-  //drop-down element for choosing radius of circle
-  // private selectSizeOption(): void {
-  //   const bubbleContainer = document.createElement("select");
-  //   bubbleContainer.id = "ball-options";
-  //   bubbleContainer.style.position = "absolute";
-  //   bubbleContainer.style.bottom = `${GROUND_HEIGHT / 2}px`;
-  //   bubbleContainer.style.left = `${CANVAS_DIMENSIONS.CANVAS_WIDTH / 4}px`;
-  //   bubbleContainer.style.zIndex = "1";
-
-  //   const placeholderOption = document.createElement("option");
-  //   placeholderOption.value = "";
-  //   placeholderOption.textContent = "Select Radius";
-  //   placeholderOption.disabled = true;
-  //   placeholderOption.selected = true;
-  //   bubbleContainer.appendChild(placeholderOption);
-
-  //   const BUBBLE_SIZES = [10, 20, 30, 40, 50, 60];
-  //   BUBBLE_SIZES.forEach((size) => {
-  //     const optionElement = document.createElement("option");
-  //     optionElement.value = size.toString();
-  //     optionElement.textContent = size.toString();
-  //     bubbleContainer.appendChild(optionElement);
-  //   });
-  //   bubbleContainer.addEventListener("change", (event) => {
-  //     const target = event.target as HTMLSelectElement;
-  //     this.selectedBubbleRadius = parseInt(target.value);
-  //   });
-  //   document.body.appendChild(bubbleContainer);
-  //   this.bubbleOptions = bubbleContainer;
-  // }
   private selectSizeOption(): void {
     const bubbleContainer = document.createElement("select");
     bubbleContainer.id = "ball-options";
@@ -120,14 +85,14 @@ export class CustomGamesCreator {
     bubbleContainer.style.backgroundColor = "#fff";
     bubbleContainer.style.fontSize = "16px";
     bubbleContainer.style.cursor = "pointer";
-  
+
     const placeholderOption = document.createElement("option");
     placeholderOption.value = "";
     placeholderOption.textContent = "Select Radius";
     placeholderOption.disabled = true;
     placeholderOption.selected = true;
     bubbleContainer.appendChild(placeholderOption);
-  
+
     const BUBBLE_SIZES = [10, 20, 30, 40, 50, 60];
     BUBBLE_SIZES.forEach((size) => {
       const optionElement = document.createElement("option");
@@ -142,22 +107,19 @@ export class CustomGamesCreator {
     document.body.appendChild(bubbleContainer);
     this.bubbleOptions = bubbleContainer;
   }
-  
 
-  //Create + button to add the bubbles
   private createAddBubbleButton() {
     const button = document.createElement("button");
     button.innerText = "+";
-    button.style.padding = "10px 20px"
+    button.style.padding = "10px 20px";
     button.style.position = "absolute";
     button.style.borderRadius = "5px";
-    button.style.backgroundColor = "green"
+    button.style.backgroundColor = "green";
     button.style.bottom = `${GROUND_HEIGHT / 2}px`;
-    button.style.left = `${CANVAS_DIMENSIONS.CANVAS_WIDTH / 2 -85}px`;
+    button.style.left = `${CANVAS_DIMENSIONS.CANVAS_WIDTH / 2 - 85}px`;
     button.style.color = "#fff";
     button.style.fontSize = "20px";
     button.style.cursor = "pointer";
-    // button.style.zIndex = "1";
     button.onclick = () => {
       this.addBubble(this.canvas.width / 2, this.canvas.height / 2);
     };
@@ -165,7 +127,6 @@ export class CustomGamesCreator {
     this.addBubbleButton = button;
   }
 
-  //create + button to add wall onto the canvas
   private createAddWallButton() {
     const wallButton = document.createElement("button");
     wallButton.innerText = "Wall +";
@@ -179,7 +140,6 @@ export class CustomGamesCreator {
     wallButton.style.fontSize = "20px";
     wallButton.style.cursor = "pointer";
 
-    // wallButton.style.zIndex = "1";
     wallButton.onclick = () => {
       this.addWall(this.canvas.width / 2);
     };
@@ -187,14 +147,12 @@ export class CustomGamesCreator {
     this.addWallButton = wallButton;
   }
 
-  //add bubble to the array
   private addBubble(x: number, y: number) {
     const bubble = new Bubble(this.ctx, 0, this.selectedBubbleRadius, x, y);
     GameManager.bubbleArray?.push(bubble);
     this.draw();
   }
 
-  //add walls to the array
   private addWall(x: number) {
     const wall = new Wall(this.ctx, x);
     GameManager.walls.push(wall);
@@ -202,13 +160,11 @@ export class CustomGamesCreator {
   }
 
   private addEventListeners(): void {
-    //event listeners for bubbles manipulation
     this.canvas.addEventListener("mousedown", this.onMouseDown);
     this.canvas.addEventListener("mousemove", this.onMouseMove);
     this.canvas.addEventListener("mouseup", this.onMouseUp);
   }
 
-  //remove event listeners after the game begins
   private removeEventListeners(): void {
     this.canvas.removeEventListener("mousedown", this.onMouseDown);
     this.canvas.removeEventListener("mousemove", this.onMouseMove);
@@ -218,7 +174,6 @@ export class CustomGamesCreator {
   private onMouseDown = (event: MouseEvent) => {
     const { offsetX, offsetY } = event;
 
-    //find the bubble that is clicked
     this.currentBubble = GameManager.bubbleArray!.find((bubble) => {
       return (
         Math.hypot(bubble.centerX - offsetX, bubble.centerY - offsetY) <
@@ -226,7 +181,6 @@ export class CustomGamesCreator {
       );
     });
 
-    //inititate dragging property after the bubble is clicked
     if (this.currentBubble) {
       this.draggingBubble = true;
     } else {
@@ -248,7 +202,8 @@ export class CustomGamesCreator {
     }
   };
 
-  //logic for dragging movement of bubble & wall(only horizontally)
+  /* This `onMouseMove` method is handling the logic for moving either a bubble or a wall on the canvas
+based on user interaction. */
   private onMouseMove = (event: MouseEvent) => {
     const { offsetX, offsetY } = event;
     if (this.draggingBubble && this.currentBubble) {
@@ -267,7 +222,6 @@ export class CustomGamesCreator {
     }
   };
 
-  //dragging is stopped after click is removed
   private onMouseUp = () => {
     this.draggingBubble = false;
     this.currentBubble = undefined;
@@ -280,13 +234,17 @@ export class CustomGamesCreator {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
+  /**
+   * The `createPlayButton` function creates a play button element with specific styling and
+   * functionality for a game interface.
+   */
   private createPlayButton() {
     const button = document.createElement("button");
     button.innerText = "Play";
-    button.style.padding = "10px 20px"
+    button.style.padding = "10px 20px";
     button.style.position = "absolute";
     button.style.borderRadius = "50px";
-    button.style.backgroundColor = "black"
+    button.style.backgroundColor = "black";
     button.style.bottom = `${GROUND_HEIGHT / 2}px`;
     button.style.left = `${CANVAS_DIMENSIONS.CANVAS_WIDTH / 2 + 500}px`;
     button.style.color = "#fff";
@@ -327,6 +285,9 @@ export class CustomGamesCreator {
     this.addWallButton = undefined;
   }
 
+  /**
+   * The `draw` function clears the canvas, sets up the static level, draws bubbles, and extra walls.
+   */
   private draw() {
     this.clearCanvas();
     this.setupStaticLevel();

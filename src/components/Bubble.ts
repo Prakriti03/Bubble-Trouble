@@ -1,4 +1,5 @@
 import { GameManager } from "../GameManager";
+import { Wall } from "./Wall";
 import { GROUND_HEIGHT, CANVAS_DIMENSIONS, WALL_WIDTH } from "../constants";
 import {
   BUBBLE_CENTER_X,
@@ -8,8 +9,9 @@ import {
   BUBBLE_DX,
 } from "../constants";
 import { GRAVITY } from "../constants";
-import { Wall } from "./Wall";
 
+/* The Bubble class in TypeScript represents a bubble object with properties and methods for drawing,
+updating, splitting, and calculating velocity. */
 export class Bubble {
   ctx: CanvasRenderingContext2D;
   centerX: number;
@@ -27,7 +29,7 @@ export class Bubble {
   isPlayerBubbleCollisionTrue?: boolean;
   mass: number;
   gravity: number;
-  wall ?: Wall;
+  wall?: Wall;
   constructor(
     ctx: CanvasRenderingContext2D,
     numberOfBubbles: number,
@@ -97,8 +99,6 @@ export class Bubble {
     return baseVelocity * (1 + velocityScalingFactor); // Adjusted velocity
   }
 
-  //need to move the logic regarding wall to GameManager.ts
-
   update() {
     this.dy += this.gravity;
     this.centerX += this.dx;
@@ -121,9 +121,7 @@ export class Bubble {
       this.dx *= -1;
     }
 
-    
-    GameManager.walls.forEach((wall)=>{
-
+    GameManager.walls.forEach((wall) => {
       if (
         (this.centerX + this.radius >= wall.posX &&
           this.centerX + this.radius <= wall.posX + WALL_WIDTH / 2) ||
@@ -132,9 +130,7 @@ export class Bubble {
       ) {
         this.dx *= -1;
       }
-    })
-    
-
+    });
   }
 
   splitBubbles() {

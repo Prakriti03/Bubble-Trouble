@@ -3,21 +3,23 @@ import { Bubble } from "./components/Bubble";
 import { GroundWalls } from "./components/Ground";
 import { Arrow } from "./components/Arrow";
 import { Wall } from "./components/Wall";
+import { Score } from "./components/Score";
+import { PowerUp } from "./components/Power-ups";
+import { Lives } from "./Lives";
 import { LevelLoader } from "./LevelLoader";
 import { CANVAS_DIMENSIONS, WALL_WIDTH } from "./constants";
 import { Movement } from "./utils/enum";
 import { GameState } from "./utils/enum";
-import { PowerUp } from "./components/Power-ups";
 import { getRandomInt } from "./utils/utils";
 import { checkCollision } from "./utils/utils";
-import { Score } from "./components/Score";
 import playerCollideAudioSrc from "/punch-audio.mp3";
-import { Lives } from "./Lives";
 import arrowAudioSrc from "/Harpoon-audio.mp3";
 import splitAudioSrc from "/pop-audio.mp3";
 import wallSlideAudioSrc from "/Sliding-audio.mp3";
 import gameOverImgSrc from "/game-over.png";
 
+/* The `GameManager` class in TypeScript manages the game state, player interactions, level loading,
+timer, collisions, power-ups, and rendering for a game. */
 export class GameManager {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
@@ -84,8 +86,6 @@ export class GameManager {
 
     this.numberOfBubbles = 1;
 
-    // GameManager.bubbleArray = [];
-
     this.arrowActive = false;
 
     this.tempMovement = Movement.STATIONARY;
@@ -103,7 +103,6 @@ export class GameManager {
     GameManager.punchAudio = new Audio(playerCollideAudioSrc);
     GameManager.punchAudio.loop = false;
 
-    //need to do this in initialSetUp (cannot do so because of event listeners)
     for (let i = 0; i < numberOfPlayers; i++) {
       this.player = new Player(this.ctx, i, 5, 0);
       this.players.push(this.player);
@@ -129,16 +128,9 @@ export class GameManager {
         if (key.code === player.controls!.right) {
           player.movement = Movement.RIGHT;
           player.tempMovement = Movement.RIGHT;
-
-          // obj.right = true;
         }
       });
     });
-    // const obj = {right:false, }
-
-    // while(true){
-
-    // }
 
     document.addEventListener("keyup", (e) => {
       this.players.forEach((player) => {
@@ -172,12 +164,9 @@ export class GameManager {
     });
   }
 
-  //initializes components
   initialSetup() {
-    // this.player = new Player(this.ctx);
     this.ground = new GroundWalls(this.ctx, this.level!);
 
-    //change the number during custom mapping
     this.wall = new Wall(
       this.ctx,
       (CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH) / 2
@@ -187,7 +176,6 @@ export class GameManager {
     this.life = new Lives(this.ctx);
   }
 
-  // to draw player, bubbles and power ups
   draw() {
     switch (this.gameState) {
       case GameState.RUNNING:
@@ -199,13 +187,17 @@ export class GameManager {
     }
   }
 
+  /**
+   * The `runningStateRender` function in TypeScript clears the canvas, draws background image, arrows,
+   * players, power-ups, bubbles, walls, ground, timer, and updates scores and lives for players.
+   */
   runningStateRender() {
     this.ctx.clearRect(
       this.x,
       this.y,
       CANVAS_DIMENSIONS.CANVAS_WIDTH,
       CANVAS_DIMENSIONS.CANVAS_HEIGHT
-    ); //running game state
+    );
 
     this.ctx.drawImage(
       this.bgImage,
@@ -230,15 +222,11 @@ export class GameManager {
     });
 
     //draw default walls
-    this.wall?.drawDefaultWalls(); //remove them from animation to stop recursion
+    this.wall?.drawDefaultWalls();
 
     //draw ground
-    this.ground!.draw(); //same as above
+    this.ground!.draw();
 
-    //draw walls in between if present
-    // if (this.isWallPresent) {
-    //   this.wall?.drawExtraWalls();
-    // }
     GameManager.walls.forEach((wall) => {
       wall.drawExtraWalls();
     });
@@ -246,7 +234,6 @@ export class GameManager {
     this.drawTimer();
 
     if (GameManager.bubbleArray?.length == 0) {
-      // this.waitingStateRender();
       this.levelLoader.loadNextLevel();
     }
 
@@ -271,8 +258,6 @@ export class GameManager {
     this.timeRemaining = this.timeLimit;
   }
 
-
-  //Checks collision between arrow & bubbles, bubbles & player
   checkCollision() {
     if (this.gameState !== GameState.RUNNING) return;
     //check collision between player and bubble
@@ -338,7 +323,6 @@ export class GameManager {
     if (powerUp.powerUpOption == 1) {
       player.incrementScore();
     } else if (powerUp.powerUpOption == 2) {
-      // Arrow.isSticky = true;\
       player.activateStickyArrow();
     } else {
       this.adjustedTime -= 10000;
@@ -369,7 +353,6 @@ export class GameManager {
 
     if (this.timeRemaining <= 0) {
       this.gameState = GameState.END;
-      // this.endGameStateRender();
     }
 
     GameManager.walls.forEach((wall) => {
@@ -448,13 +431,19 @@ export class GameManager {
       this.endGameStateRender();
     }
   }
+  /**
+   * The function checks if all bubbles on the player's side of the wall have been popped and triggers
+   * wall disappearance if they have.
+   * @returns If all bubbles on the player side have been popped and the height of the wall at index 0 is
+   * less than or equal to 0, then nothing is returned. Otherwise, the `wallSlidingSound` is played, the
+   * wall at index 0 starts disappearing, and then it is removed from the `walls` array using `shift()`.
+   */
   checkBubblesOnPlayerSide() {
     var allBubblesPopped = true;
     for (let bubble of GameManager.bubbleArray) {
       //check if bubbles are present on the left side of the wall
 
       if (GameManager.walls[0] && bubble.centerX <= GameManager.walls[0].posX) {
-        // console.log(GameManager.walls[0])
         allBubblesPopped = false;
         break;
       }
@@ -464,7 +453,6 @@ export class GameManager {
         return;
       }
       GameManager.wallSlidingSound.play();
-      // wallSlidingSound.loop = false;
       GameManager.walls[0].startDisappearing();
       GameManager.walls.shift();
     }
