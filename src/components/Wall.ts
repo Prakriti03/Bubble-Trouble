@@ -11,7 +11,7 @@ export class Wall {
   ctx: CanvasRenderingContext2D;
   wallImage: CanvasImageSource;
   disappearing: boolean = false;
-  disappearingSpeed: number = 3;
+  disappearingSpeed: number = 1;
   constructor(ctx: CanvasRenderingContext2D, posX: number) {
     this.posX = posX;
     this.posY = 0;

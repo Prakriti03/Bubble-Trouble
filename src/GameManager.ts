@@ -140,7 +140,7 @@ export class GameManager {
         if (keyState[player.controls!.shoot]) {
           const arrowSound = new Audio(arrowAudioSrc);
           arrowSound.play();
-          this.arrow = new Arrow(this.ctx, player.posX)
+          this.arrow = new Arrow(this.ctx, player.posX + player.width/2)
           this.arrow!.isHittable = true;
           player.movement = Movement.STATIONARY;
         }
@@ -176,8 +176,6 @@ export class GameManager {
 
     this.score = new Score(this.ctx);
     this.life = new Lives(this.ctx);
-    // this.arrow = new Arrow(this.ctx, this.player!.posX);
-
 
   }
 
