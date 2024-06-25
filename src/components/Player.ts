@@ -32,7 +32,7 @@ export class Player {
   score: number;
   powerUps: number[];
   initialPosX: number;
-  arrow: Arrow;
+  arrow: Arrow | null;
   isHittable?: boolean;
 
   constructor(
@@ -63,7 +63,7 @@ export class Player {
         : CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH - this.playerWidth;
     this.posX = this.initialPosX;
     this.arrow = new Arrow(ctx, this.posX); //each player should have an instance of arrow to determine the score
-
+    
     // Set controls based on player index
     if (playerIndex === 0) {
       this.imgSource = playerOneImgSrc;
@@ -162,6 +162,9 @@ export class Player {
     ) {
       this.posX += this.dx;
     }
+    if (this.arrow) {
+      this.arrow.update();
+    }
   }
   updateLives() {
     this.life = this.life - 1;
@@ -173,5 +176,11 @@ export class Player {
 
   activateStickyArrow() {
     Arrow.isSticky = true;
+  }
+
+  shootArrow() {
+    if (!this.arrow || !this.arrow.isActive) {
+      this.arrow = new Arrow(this.ctx, this.posX + this.playerWidth / 2);
+    }
   }
 }

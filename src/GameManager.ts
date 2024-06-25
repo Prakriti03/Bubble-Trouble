@@ -104,7 +104,7 @@ export class GameManager {
     GameManager.punchAudio.loop = false;
 
     for (let i = 0; i < numberOfPlayers; i++) {
-      this.player = new Player(this.ctx, i, 5, 0);
+      this.player = new Player(this.ctx, i, 3, 0);
       this.players.push(this.player);
     }
 
@@ -119,49 +119,51 @@ export class GameManager {
     this.initialSetup();
     this.start();
 
-    document.addEventListener("keydown", (key) => {
+    this.players.forEach((player)=>{
+      player.tempMovement = Movement.STATIONARY;
+    })
+
+    const keyState: { [key: string]: boolean } = {};
+
+    document.addEventListener("keydown", (event) => {
+      keyState[event.code] = true;
+
       this.players.forEach((player) => {
-        if (key.code === player.controls!.left) {
+        if (keyState[player.controls!.left]) {
           player.movement = Movement.LEFT;
           player.tempMovement = Movement.LEFT;
         }
-        if (key.code === player.controls!.right) {
+        if (keyState[player.controls!.right]) {
           player.movement = Movement.RIGHT;
           player.tempMovement = Movement.RIGHT;
+        }
+        if (keyState[player.controls!.shoot]) {
+          const arrowSound = new Audio(arrowAudioSrc);
+          arrowSound.play();
+          this.arrow = new Arrow(this.ctx, player.posX)
+          this.arrow!.isHittable = true;
+          player.movement = Movement.STATIONARY;
         }
       });
     });
 
-    document.addEventListener("keyup", (e) => {
+    document.addEventListener("keyup", (event) => {
+      keyState[event.code] = false;
+
       this.players.forEach((player) => {
         if (
-          e.code === player.controls!.left ||
-          e.code === player.controls!.right
+          event.code === player.controls!.left ||
+          event.code === player.controls!.right
         ) {
           player.movement = Movement.STATIONARY;
           player.tempMovement = Movement.STATIONARY;
         }
-      });
-    });
-
-    document.addEventListener("keydown", (key) => {
-      this.players.forEach((player) => {
-        if (key.code === player.controls!.shoot) {
-          const arrowSound = new Audio(arrowAudioSrc);
-          arrowSound.play();
-          this.arrow = new Arrow(this.ctx, player.posX);
-          this.arrow.isHittable = true;
-          player.movement = Movement.STATIONARY;
-        }
-      });
-    });
-    document.addEventListener("keyup", (key) => {
-      this.players.forEach((player) => {
-        if (key.code === player.controls!.shoot) {
+        if (event.code === player.controls!.shoot) {
           player.movement = player.tempMovement;
         }
       });
-    });
+});
+
   }
 
   initialSetup() {
@@ -174,6 +176,9 @@ export class GameManager {
 
     this.score = new Score(this.ctx);
     this.life = new Lives(this.ctx);
+    // this.arrow = new Arrow(this.ctx, this.player!.posX);
+
+
   }
 
   draw() {
@@ -365,33 +370,33 @@ export class GameManager {
 
     //arrow splits bubbles
     GameManager.bubbleArray!.forEach((bubble, index) => {
-      this.players.forEach((player) => {
-        if (
-          bubble.isBubbleArrowCollisionTrue &&
-          this.arrow!.isHittable &&
-          this.arrow!.isActive
-        ) {
-          const bubblePopSound = new Audio(splitAudioSrc);
-          bubblePopSound.play();
-          if (bubble.radius < 10) {
-            GameManager.bubbleArray?.splice(index, 1);
-          } else {
-            this.powerUpOption = getRandomInt(0, 3);
-            bubble.splitBubbles()!;
-            this.powerUpArray.push(
-              new PowerUp(
-                this.ctx,
-                bubble.centerX,
-                bubble.centerY,
-                this.powerUpOption
-              )
-            );
-          }
-          this.arrow!.isActive = false;
-          this.arrow!.isHittable = false;
-          player.incrementScore();
+      if (
+        bubble.isBubbleArrowCollisionTrue &&
+        this.arrow!.isHittable &&
+        this.arrow!.isActive
+      ) {
+        const bubblePopSound = new Audio(splitAudioSrc);
+        bubblePopSound.play();
+        if (bubble.radius < 10) {
+          GameManager.bubbleArray?.splice(index, 1);
+        } else {
+          this.powerUpOption = getRandomInt(0, 3);
+          bubble.splitBubbles()!;
+          this.powerUpArray.push(
+            new PowerUp(
+              this.ctx,
+              bubble.centerX,
+              bubble.centerY,
+              this.powerUpOption
+            )
+          );
         }
-      });
+        this.arrow!.isActive = false;
+        this.arrow!.isHittable = false;
+        this.players.forEach((player) => {
+          player.incrementScore();
+        });
+      }
     });
 
     GameManager.bubbleArray!.forEach((bubble) => {
@@ -426,7 +431,13 @@ export class GameManager {
     this.resetTimer();
 
     player.updateLives();
-    if (this.player!.life === 0) {
+    this.players.forEach((player, index)=>{
+
+      if (player.life == 0) {
+        this.players.splice(index, 1);
+      }
+    })
+    if(this.players.length==0){
       this.gameState = GameState.END;
       this.endGameStateRender();
     }
