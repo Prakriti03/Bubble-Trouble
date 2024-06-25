@@ -1,5 +1,5 @@
 import wallImage from "/wall.jpg";
-import { CANVAS_DIMENSIONS, WALL_WIDTH } from "../constants";
+import { CANVAS_DIMENSIONS, GROUND_HEIGHT, WALL_WIDTH } from "../constants";
 
 export class Wall {
   posX: number;
@@ -13,14 +13,11 @@ export class Wall {
   constructor(
     ctx: CanvasRenderingContext2D,
     posX : number,
-    posY: number,
-    width: number,
-    height: number
   ) {
     this.posX = posX;
-    this.posY = posY;
-    this.width = width;
-    this.height = height;
+    this.posY = 0;
+    this.width = WALL_WIDTH/2;
+    this.height = CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT;
     this.ctx = ctx;
     this.wallImage = new Image();
     this.wallImage.src = wallImage;

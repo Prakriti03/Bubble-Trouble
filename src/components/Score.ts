@@ -1,3 +1,5 @@
+import { CANVAS_DIMENSIONS, WALL_WIDTH } from "../constants";
+
 export class Score {
   ctx: CanvasRenderingContext2D;
   score: number;
@@ -17,9 +19,9 @@ export class Score {
   }
 
   draw() {
-    this.ctx.fillStyle = "white";
+    this.ctx.fillStyle = "red";
     this.ctx.font = "20px Arial";
-    this.ctx.fillText(`Score: ${this.score}`, 10, 30);
+    this.ctx.fillText(`Score: ${this.score}`, WALL_WIDTH+150, CANVAS_DIMENSIONS.CANVAS_HEIGHT-10);
     //   this.ctx.fillStyle = "white";
     //   this.ctx.font = "22px Arial"
     //   this.ctx.fillText(`High Score : ${this.highScore}`, 10, 60);

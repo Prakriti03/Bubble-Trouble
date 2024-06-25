@@ -1,15 +1,15 @@
 import {
   CANVAS_DIMENSIONS,
   GROUND_HEIGHT,
-  PLAYER_DIMENSIONS,
-  WALL_WIDTH,
+  LEVEL_FIVE,
 } from "./constants";
-import { LEVEL_ONE} from "./constants";
+import { LEVEL_ONE } from "./constants";
 import groundImg from "/wall.jpg";
 import { GameManager } from "./GameManager";
 import { GroundWalls } from "./components/Ground";
 import { Bubble } from "./components/Bubble";
 import { Wall } from "./components/Wall";
+import { Lives } from "./Lives";
 
 export class CustomGamesCreator {
   canvas: HTMLCanvasElement;
@@ -27,21 +27,24 @@ export class CustomGamesCreator {
   bubbleOptions?: HTMLSelectElement;
   wallOptions?: HTMLSelectElement;
   walls: Wall[] = [];
-  wall ?: Wall;
+  wall?: Wall;
   draggingWall: boolean = false;
   resizingWall: boolean = false;
   currentWall?: Wall;
   addWallButton?: HTMLButtonElement;
   selectedWallIndex: number = -1;
+  life : Lives;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.ctx = this.canvas.getContext("2d")!;
     this.bgImage = new Image();
-    this.bgImage.src = LEVEL_ONE.imageSrc;
-    this.ground = new GroundWalls(this.ctx);
+    this.bgImage.src = LEVEL_FIVE.imageSrc;
+    this.ground = new GroundWalls(this.ctx,6);
     this.groundImg = new Image();
     this.groundImg.src = groundImg;
+    this.wall = new Wall(this.ctx, 0);
+    this.life = new Lives(this.ctx)
 
     GameManager.bubbleArray = [];
 
@@ -64,7 +67,7 @@ export class CustomGamesCreator {
 
   //before player begins the game
   private setupStaticLevel(): void {
-    this.ctx.beginPath();
+    
     //default background
     this.ctx.drawImage(
       this.bgImage,
@@ -73,24 +76,40 @@ export class CustomGamesCreator {
       this.canvas.width,
       this.canvas.height
     );
-
-    //draw static player
-    this.ctx.fillStyle = "black";
-    this.ctx.fillRect(
-      this.canvas.width / 2,
-      this.canvas.height - GROUND_HEIGHT - PLAYER_DIMENSIONS.PLAYER_HEIGHT,
-      50,
-      50
-    );
-
-    //draw ground
+    this.wall?.drawDefaultWalls();
     this.ground.draw();
-
-    //add initial bubble in the center
-    // this.addBubble(this.canvas.width / 2, this.canvas.height / 2);
   }
 
   //drop-down element for choosing radius of circle
+  // private selectSizeOption(): void {
+  //   const bubbleContainer = document.createElement("select");
+  //   bubbleContainer.id = "ball-options";
+  //   bubbleContainer.style.position = "absolute";
+  //   bubbleContainer.style.bottom = `${GROUND_HEIGHT / 2}px`;
+  //   bubbleContainer.style.left = `${CANVAS_DIMENSIONS.CANVAS_WIDTH / 4}px`;
+  //   bubbleContainer.style.zIndex = "1";
+
+  //   const placeholderOption = document.createElement("option");
+  //   placeholderOption.value = "";
+  //   placeholderOption.textContent = "Select Radius";
+  //   placeholderOption.disabled = true;
+  //   placeholderOption.selected = true;
+  //   bubbleContainer.appendChild(placeholderOption);
+
+  //   const BUBBLE_SIZES = [10, 20, 30, 40, 50, 60];
+  //   BUBBLE_SIZES.forEach((size) => {
+  //     const optionElement = document.createElement("option");
+  //     optionElement.value = size.toString();
+  //     optionElement.textContent = size.toString();
+  //     bubbleContainer.appendChild(optionElement);
+  //   });
+  //   bubbleContainer.addEventListener("change", (event) => {
+  //     const target = event.target as HTMLSelectElement;
+  //     this.selectedBubbleRadius = parseInt(target.value);
+  //   });
+  //   document.body.appendChild(bubbleContainer);
+  //   this.bubbleOptions = bubbleContainer;
+  // }
   private selectSizeOption(): void {
     const bubbleContainer = document.createElement("select");
     bubbleContainer.id = "ball-options";
@@ -98,14 +117,20 @@ export class CustomGamesCreator {
     bubbleContainer.style.bottom = `${GROUND_HEIGHT / 2}px`;
     bubbleContainer.style.left = `${CANVAS_DIMENSIONS.CANVAS_WIDTH / 4}px`;
     bubbleContainer.style.zIndex = "1";
-
+    bubbleContainer.style.padding = "10px";
+    bubbleContainer.style.border = "2px solid #ccc";
+    bubbleContainer.style.borderRadius = "5px";
+    bubbleContainer.style.backgroundColor = "#fff";
+    bubbleContainer.style.fontSize = "16px";
+    bubbleContainer.style.cursor = "pointer";
+  
     const placeholderOption = document.createElement("option");
     placeholderOption.value = "";
     placeholderOption.textContent = "Select Radius";
     placeholderOption.disabled = true;
     placeholderOption.selected = true;
     bubbleContainer.appendChild(placeholderOption);
-
+  
     const BUBBLE_SIZES = [10, 20, 30, 40, 50, 60];
     BUBBLE_SIZES.forEach((size) => {
       const optionElement = document.createElement("option");
@@ -120,15 +145,22 @@ export class CustomGamesCreator {
     document.body.appendChild(bubbleContainer);
     this.bubbleOptions = bubbleContainer;
   }
+  
 
   //Create + button to add the bubbles
   private createAddBubbleButton() {
     const button = document.createElement("button");
     button.innerText = "+";
+    button.style.padding = "10px 20px"
     button.style.position = "absolute";
+    button.style.borderRadius = "5px";
+    button.style.backgroundColor = "green"
     button.style.bottom = `${GROUND_HEIGHT / 2}px`;
-    button.style.left = `${CANVAS_DIMENSIONS.CANVAS_WIDTH / 2 - 150}px`;
-    button.style.zIndex = "1";
+    button.style.left = `${CANVAS_DIMENSIONS.CANVAS_WIDTH / 2 -85}px`;
+    button.style.color = "#fff";
+    button.style.fontSize = "20px";
+    button.style.cursor = "pointer";
+    // button.style.zIndex = "1";
     button.onclick = () => {
       this.addBubble(this.canvas.width / 2, this.canvas.height / 2);
     };
@@ -139,14 +171,20 @@ export class CustomGamesCreator {
   //create + button to add wall onto the canvas
   private createAddWallButton() {
     const wallButton = document.createElement("button");
-    wallButton.innerText = "+";
+    wallButton.innerText = "Wall +";
     wallButton.style.position = "absolute";
     wallButton.style.bottom = `${GROUND_HEIGHT / 2}px`;
-    wallButton.style.left = `${CANVAS_DIMENSIONS.CANVAS_WIDTH / 2 + 70}px`;
-    wallButton.style.zIndex = "1";
-    wallButton.onclick = () => {
+    wallButton.style.left = `${CANVAS_DIMENSIONS.CANVAS_WIDTH / 2 + 300}px`;
+    wallButton.style.padding = "10px 20px";
+    wallButton.style.borderRadius = "5px";
+    wallButton.style.backgroundColor = "blue";
+    wallButton.style.color = "#fff";
+    wallButton.style.fontSize = "20px";
+    wallButton.style.cursor = "pointer";
 
-      this.addWall(this.canvas.width / 2, 0);
+    // wallButton.style.zIndex = "1";
+    wallButton.onclick = () => {
+      this.addWall(this.canvas.width / 2);
     };
     document.body.appendChild(wallButton);
     this.addWallButton = wallButton;
@@ -160,9 +198,9 @@ export class CustomGamesCreator {
   }
 
   //add walls to the array
-  private addWall(x: number, y: number){
-    this.wall = new Wall(this.ctx, x, y, WALL_WIDTH/2, this.canvas.height-GROUND_HEIGHT);
-    this.walls.push(this.wall);
+  private addWall(x: number) {
+    const wall = new Wall(this.ctx, x);
+    GameManager.walls.push(wall);
     this.draw();
   }
 
@@ -194,8 +232,8 @@ export class CustomGamesCreator {
     //inititate dragging property after the bubble is clicked
     if (this.currentBubble) {
       this.draggingBubble = true;
-    }else {
-      this.selectedWallIndex = this.walls.findIndex((wall) => {
+    } else {
+      this.selectedWallIndex = GameManager.walls.findIndex((wall) => {
         return (
           offsetX >= wall.posX &&
           offsetX <= wall.posX + wall.width &&
@@ -204,12 +242,13 @@ export class CustomGamesCreator {
         );
       });
       if (this.selectedWallIndex >= 0) {
-        this.currentWall = this.walls[this.selectedWallIndex];
+        this.currentWall = GameManager.walls[this.selectedWallIndex];
         this.draggingWall = true;
-        this.resizingWall = offsetX >=  this.wall!.posX + this.wall!.width - 10 && offsetY >= this.wall!.posY + this.wall!.height - 10;
+        this.resizingWall =
+          offsetX >= this.currentWall.posX + this.currentWall.width - 10 &&
+          offsetY >= this.currentWall.posY + this.currentWall.height - 10;
       }
     }
- 
   };
 
   //logic for dragging movement of bubble & wall(only horizontally)
@@ -219,15 +258,15 @@ export class CustomGamesCreator {
       this.currentBubble.centerX = offsetX;
       this.currentBubble.centerY = offsetY;
       this.draw();
-    }
-    else if(this.draggingWall && this.currentWall){
-        if(this.resizingWall){
-            this.currentWall.width = Math.max(10, offsetX - this.currentWall.posX);
-            this.currentWall.height = Math.max(10, offsetY - this.currentWall.posY);
-        }else{
-            this.currentWall.posX = offsetX;
-        }
-        this.draw();
+    } else if (this.draggingWall && this.currentWall) {
+      if (this.resizingWall) {
+        this.currentWall.width = Math.max(10, offsetX - this.currentWall.posX);
+        this.currentWall.height = Math.max(10, offsetY - this.currentWall.posY);
+      } else {
+        this.currentWall.posX = offsetX;
+      }
+      GameManager.walls[this.selectedWallIndex] = this.currentWall;
+      this.draw();
     }
   };
 
@@ -247,9 +286,15 @@ export class CustomGamesCreator {
   private createPlayButton() {
     const button = document.createElement("button");
     button.innerText = "Play";
+    button.style.padding = "10px 20px"
     button.style.position = "absolute";
-    button.style.top = "100px";
-    button.style.right = "100px";
+    button.style.borderRadius = "50px";
+    button.style.backgroundColor = "black"
+    button.style.bottom = `${GROUND_HEIGHT / 2}px`;
+    button.style.left = `${CANVAS_DIMENSIONS.CANVAS_WIDTH / 2 + 500}px`;
+    button.style.color = "#fff";
+    button.style.fontSize = "20px";
+    button.style.cursor = "pointer";
     button.onclick = () => {
       const customLevelConfig = {
         imageSrc: LEVEL_ONE.imageSrc,
@@ -258,14 +303,9 @@ export class CustomGamesCreator {
           centerY: bubble.centerY,
           radius: bubble.radius,
         })),
-        Walls: this.walls.map((wall) => ({
-            posX: wall.posX,
-            posY: wall.posY,
-            width: wall.width,
-            height: wall.height,
-          })),
+        wallsPosX: GameManager.walls.map((wall) => wall.posX),
         isWallPresent: true,
-        level: 4,
+        level: 6,
       };
       this.removeUIElements();
       this.removeEventListeners();
@@ -299,8 +339,8 @@ export class CustomGamesCreator {
     GameManager.bubbleArray?.forEach((bubble) => {
       bubble.draw(bubble.centerX, bubble.centerY);
     });
-    this.walls.forEach((wall)=>{
+    GameManager.walls.forEach((wall) => {
       wall.drawExtraWalls();
-    })
+    });
   }
 }

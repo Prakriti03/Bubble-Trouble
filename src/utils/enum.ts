@@ -1,7 +1,8 @@
 export enum Movement{
     LEFT = "Left",
     RIGHT = "Right",
-    STATIONARY = "Stationary"
+    STATIONARY = "Stationary",
+    SHOOT = "Shoot"
 }
 
 export enum GameState {

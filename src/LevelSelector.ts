@@ -15,22 +15,25 @@ export class LevelSelector {
   }
 
   createUI() {
-    this.clearCanvas();
-    this.ctx.font = "30px Arial";
-    this.ctx.fillStyle = "black";
-    this.ctx.fillText("Select Level", 100, 100);
-
     for (let i = 1; i <= 5; i++) {
-      const button = this.createButton(`Level ${i}`, 500, 150 + i * 50);
+      const button = this.createButton(`Level ${i}`, 400, 150 + i * 80);
       this.levelButtons.push(button);
     }
   }
   createButton(text: string, x: number, y: number): HTMLButtonElement {
-    const button = document.createElement("button");
+    const button = document.createElement('button');
     button.innerText = text;
-    button.style.position = "absolute";
+    button.style.position = 'absolute';
     button.style.left = `${x}px`;
     button.style.top = `${y}px`;
+    button.style.padding = '20px 50px';
+    button.style.fontSize = '20px';
+    button.style.border = '2px solid #8B4513'; // Wooden look
+    button.style.backgroundColor = 'red';
+    button.style.color = 'white';
+    button.style.borderRadius = '10px';
+    button.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+    button.style.cursor = 'pointer';
     document.body.appendChild(button);
     return button;
   }

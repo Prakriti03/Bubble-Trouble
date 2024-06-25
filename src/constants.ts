@@ -1,7 +1,8 @@
 import bgImageLevelOne from "/background.png";
 import bgImageLevelTwo from "/bgImage2.jpeg";
 import bgImageLevelThree from "/bgImage3.jpeg";
-// import bgImageLevelFour from "/bgImage4.png"
+import bgImageLevelFour from "/bgImage4.jpeg";
+import bgImageLevelFive from "/bgImage5.jpeg"
 
 export const CANVAS_DIMENSIONS = {
   CANVAS_HEIGHT: window.innerHeight - 10,
@@ -35,15 +36,9 @@ export const LEVEL_ONE={
   Bubbles: [ { 
     centerX  : WALL_WIDTH+30,
     centerY  : 250,
-    radius  : 10}],
+    radius  : 30}],
   imageSrc: bgImageLevelOne,
-  walls : [{
-    posX : 100,
-    posY : 200,
-    width : 50,
-    height : 200
-  }
-  ],
+  wallsPosX : [],
   isWallPresent : 0,
   level : 1,
 }
@@ -53,6 +48,7 @@ export const LEVEL_TWO={
     centerY  : 250,
     radius  : 60}],
   imageSrc: bgImageLevelTwo,
+  wallsPosX : [],
   isWallPresent: 0,
   level : 2,
 }
@@ -67,11 +63,51 @@ export const LEVEL_THREE={
       radius : 50
     }
     ],
-  walls: [
-    { posX: 150, posY: 250, width: 70, height: 150 },
-    { posX: 350, posY: 100, width: 120, height: 120 },
-  ],
+  
+  wallsPosX : [600],
   imageSrc: bgImageLevelThree,
-  isWallPresent: 1,
+  isWallPresent: 0,
   level : 3,
 }
+
+export const LEVEL_FOUR={
+  Bubbles: [ { 
+      centerX  : WALL_WIDTH+60,
+      centerY  : 250,
+      radius  : 60},
+    {
+      centerX : 800,
+      centerY : 250,
+      radius : 50
+    }
+    ],
+  
+  wallsPosX : [700],
+  imageSrc: bgImageLevelFour,
+  isWallPresent: 0,
+  level : 4,
+}
+
+export const LEVEL_FIVE={
+  Bubbles: [ { 
+      centerX  : WALL_WIDTH+30,
+      centerY  : 250,
+      radius  : 30},
+    {
+      centerX : 400,
+      centerY : 250,
+      radius : 50
+    },
+    {
+      centerX : 820,
+      centerY : 250,
+      radius : 60,
+    }
+    ],
+  
+  wallsPosX : [300, 700],
+  imageSrc: bgImageLevelFive,
+  isWallPresent: 0,
+  level : 5,
+}
+

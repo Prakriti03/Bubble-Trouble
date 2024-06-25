@@ -4,18 +4,21 @@ import { GroundWalls } from "./components/Ground";
 import { Arrow } from "./components/Arrow";
 import { Wall } from "./components/Wall";
 import { LevelLoader } from "./LevelLoader";
-import { CANVAS_DIMENSIONS, GROUND_HEIGHT, WALL_WIDTH } from "./constants";
+import { CANVAS_DIMENSIONS, WALL_WIDTH } from "./constants";
 import { Movement } from "./utils/enum";
 import { GameState } from "./utils/enum";
 import { PowerUp } from "./components/Power-ups";
 import { getRandomInt } from "./utils/utils";
 import { checkCollision } from "./utils/utils";
 import { Score } from "./components/Score";
+import playerCollideAudioSrc from "/punch-audio.mp3"
+import { Lives } from "./Lives";
 import arrowAudioSrc from "/Harpoon-audio.mp3"
 import splitAudioSrc from "/pop-audio.mp3"
 import wallSlideAudioSrc from "/Sliding-audio.mp3"
-import playerCollideAudioSrc from "/punch-audio.mp3"
-import { Lives } from "./Lives";
+import gameOverImgSrc from "/game-over.png"
+
+
 
 
 export class GameManager {
@@ -40,14 +43,14 @@ export class GameManager {
   bubbleRadius?: number;
   tempMovement?: Movement;
   isBubbleArrowCollisionTrue?: boolean[];
-  static bubbleArray?: Bubble[];
+  static bubbleArray: Bubble[]=[];
   levelLoader: LevelLoader;
   timeLimit: number;
   elapsedTime: number;
   startTime: number;
   timeRemaining: number;
   adjustedTime : number;
-  level?: number;
+  level: number=1;
   wall?: Wall;
   isWallPresent: boolean = false;
   customLevelConfig: any;
@@ -61,6 +64,8 @@ export class GameManager {
   life ?: Lives;
   isPlayerHit : boolean = false;  
   players: Player[] = [];
+  static walls : Wall[]=[];
+  gameOverImg : HTMLImageElement;
 
 
   constructor(canvas: HTMLCanvasElement,numberOfPlayers: number, customLevelConfig?: any) {
@@ -79,7 +84,7 @@ export class GameManager {
 
     this.numberOfBubbles = 1;
 
-    GameManager.bubbleArray = [];
+    // GameManager.bubbleArray = [];
 
     this.arrowActive = false;
 
@@ -101,7 +106,7 @@ export class GameManager {
 
     //need to do this in initialSetUp (cannot do so because of event listeners)
     for (let i = 0; i < numberOfPlayers; i++) {
-      this.player = new Player(this.ctx, i); 
+      this.player = new Player(this.ctx, i, 5,0); 
       this.players.push(this.player);
     }
 
@@ -110,6 +115,10 @@ export class GameManager {
       this.levelLoader.levels.push(this.customLevelConfig);
       this.levelLoader.loadLevel(this.levelLoader.levels.length - 1);
     }
+
+    this.gameOverImg = new Image();
+    this.gameOverImg.src = gameOverImgSrc;
+
     this.initialSetup();
     this.start();
 
@@ -124,9 +133,16 @@ export class GameManager {
         if (key.code === player.controls!.right) {
           player.movement = Movement.RIGHT;
           player.tempMovement = Movement.RIGHT;
+
+          // obj.right = true;
         }
       })
     });
+    // const obj = {right:false, }
+
+    // while(true){
+
+    // }
 
     document.addEventListener("keyup", (e) => {
       this.players.forEach(player=>{
@@ -163,15 +179,13 @@ export class GameManager {
   //initializes components
   initialSetup() {
     // this.player = new Player(this.ctx);
-    this.ground = new GroundWalls(this.ctx);
+    this.ground = new GroundWalls(this.ctx, this.level!);
+    
 
     //change the number during custom mapping
     this.wall = new Wall(
       this.ctx,
       (CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH) / 2,
-      0,
-      WALL_WIDTH / 2,
-      CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT
     );
 
     this.score = new Score(this.ctx);
@@ -226,22 +240,26 @@ export class GameManager {
     this.wall?.drawDefaultWalls(); //remove them from animation to stop recursion
 
     //draw ground
-    this.ground?.draw(); //same as above
-
+    this.ground!.draw(); //same as above
+ 
     //draw walls in between if present
-    if (this.isWallPresent) {
-      this.wall?.drawExtraWalls();
-    }
+    // if (this.isWallPresent) {
+    //   this.wall?.drawExtraWalls();
+    // }
+    GameManager.walls.forEach((wall)=>{
+      wall.drawExtraWalls();
+    })
 
     this.drawTimer();
 
     if (GameManager.bubbleArray?.length == 0) {
       // this.waitingStateRender();
       this.levelLoader.loadNextLevel();
+  
     }
 
     this.score?.draw();
-    this.life?.draw();
+    this.life?.draw(this.player!.life, this.player!.life);
   }
   drawTimer() {
     const minutes = Math.floor(this.timeRemaining / 60000);
@@ -291,11 +309,14 @@ export class GameManager {
 
         if (distance <= bubble.r) {
           GameManager.punchAudio.play();
-          this.life?.decrement();
-          if(this.life?.life==0){
-  
-            this.gameState = GameState.END;
-          }
+          
+          
+          this.resetGame();
+          // this.life?.decrement();
+
+          // if(this.life?.life==0){
+          //   this.gameState = GameState.END;
+          // }
         }
       });
 
@@ -349,9 +370,12 @@ export class GameManager {
   endGameStateRender() {
     
     this.gameState = GameState.END;
-    this.ctx.fillStyle = "green";
-    this.ctx.fillRect(100, 100, 100, 100);
+    this.ctx.drawImage(this.gameOverImg, CANVAS_DIMENSIONS.CANVAS_WIDTH/2-100, CANVAS_DIMENSIONS.CANVAS_HEIGHT/2-200);
+    setTimeout(() => {
+      location.reload();
+  }, 3000);
   }
+
 
   update() {
     if (this.gameState !== GameState.RUNNING) return;
@@ -368,11 +392,15 @@ export class GameManager {
       // this.endGameStateRender();
     }
 
-    if (this.wall!.height <= 0) {
-      this.isWallPresent = false;
-    }
+    GameManager.walls.forEach((wall)=>{
 
-    this.players.forEach(player => player.update(this.isWallPresent));
+      if (wall.height <= 0) {
+        this.isWallPresent = false;   //
+      }
+    })
+
+
+    this.players.forEach(player => player.update());
 
     //arrow splits bubbles
     GameManager.bubbleArray!.forEach((bubble, index) => {
@@ -404,39 +432,70 @@ export class GameManager {
     GameManager.bubbleArray!.forEach((bubble) => {
       //change the direction of bubbble bouncing
 
-      bubble.update(this.isWallPresent);
+      bubble.update();
     });
 
     this.arrow?.update();
 
     this.checkBubblesOnPlayerSide();
 
-    this.wall?.update();
+    GameManager.walls.forEach((wall)=>{
 
-    // if (this.isCollisionPlayerPowerUp) {
-    //   this.timeRemaining += 10000; 
-    // }
+      wall.update();
+    })
+
+  }
+  //to restart the game when a player loses life
+  resetGame(){
+    
+    GameManager.bubbleArray = [];
+    this.players.forEach(player => {
+      player.posX = WALL_WIDTH;
+    });
+   
+    this.powerUpArray = [];
+
+    this.wall = new Wall(this.ctx, (CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH) / 2);
+    this.levelLoader.loadLevel(this.level!-1);
+
+    this.resetTimer();
+
+    this.player?.updateLives();
+    console.log(this.player?.life)
+    if (this.player!.life === 0) {
+      this.gameState = GameState.END;
+      this.endGameStateRender();
+    }
+
   }
   checkBubblesOnPlayerSide() {
-    let allBubblesPopped = true;
-    for (let bubble of GameManager.bubbleArray!) {
+    var allBubblesPopped = true;
+    for (let bubble of GameManager.bubbleArray) {
       //check if bubbles are present on the left side of the wall
-      if (bubble.centerX <= this.wall!.posX) {
+      
+      if (GameManager.walls[0] && bubble.centerX <= GameManager.walls[0].posX) {
+        // console.log(GameManager.walls[0])
         allBubblesPopped = false;
         break;
       }
     }
-    if (allBubblesPopped) {
-      if(this.wall!.height<=0){
-        return
-      }
-      GameManager.wallSlidingSound.play();
-      // wallSlidingSound.loop = false;
-      this.wall?.startDisappearing();
+    if(allBubblesPopped && GameManager.walls[0]){
+
+        if( GameManager.walls[0].height<=0){
+          return
+        }
+        GameManager.wallSlidingSound.play();
+        // wallSlidingSound.loop = false;
+        GameManager.walls[0].startDisappearing();
+        GameManager.walls.shift();
     }
+
   }
 
   start() {
+    if(!(this.gameState==GameState.RUNNING)){
+      return;
+    }
     this.checkCollision();
     this.update();
     this.draw();

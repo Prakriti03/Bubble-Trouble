@@ -3,13 +3,13 @@ import { CANVAS_DIMENSIONS } from "../constants";
 import { GROUND_HEIGHT } from "../constants";
 import { Movement } from "../utils/enum";
 import { Sprite } from "../Sprite";
-import { Wall } from "./Wall";
 import heroImage from "/hero.png";
+import { GameManager } from "../GameManager";
 
 export class Player {
   heroImage: HTMLImageElement;
   ctx: CanvasRenderingContext2D;
-  posX: number;
+  posX !: number;
   posY: number;
   movement?: Movement;
   dx: number;
@@ -22,11 +22,13 @@ export class Player {
   gameFrame: number;
   staggerFrame: number;
   sprite!: Sprite;
-  wall : Wall;
   controls ?: { left: string, right: string, shoot: string };
   tempMovement ?: Movement;
+  life : number ;
+  score : number ;
+  powerUps : number[];
 
-  constructor(ctx: CanvasRenderingContext2D, playerIndex : number) {
+  constructor(ctx: CanvasRenderingContext2D, playerIndex : number, initialLife : number, initialScore: number) {
     this.heroImage = new Image();
     this.heroImage.src = heroImage;
     this.ctx = ctx;
@@ -42,22 +44,20 @@ export class Player {
     this.frameY = 0;
     this.gameFrame = 0;
     this.staggerFrame = 20;
-    this.wall = new Wall(
-      this.ctx,
-      (CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH) / 2,
-      0,
-      WALL_WIDTH / 2,
-      CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT
-    );
+    this.life = initialLife;
+    this.score = initialScore;
+    this.powerUps = [];
 
     // Set controls based on player index
     if (playerIndex === 0) {
       this.controls = { left: "ArrowLeft", right: "ArrowRight", shoot: "Space" };
+      this.posX = WALL_WIDTH
     } else if (playerIndex === 1) {
       this.controls = { left: "KeyA", right: "KeyD", shoot: "KeyW" };
+      this.posX = CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH - this.playerWidth;
     }
 
-    this.posX = playerIndex === 0 ? WALL_WIDTH : WALL_WIDTH+this.playerWidth+30;
+    // this.posX = playerIndex === 0 ? WALL_WIDTH : WALL_WIDTH+this.playerWidth+30;
 
     
   }
@@ -126,18 +126,18 @@ export class Player {
   }
 
 
-  update(isWallPresent: boolean) {
+  update() {
     if (this.movement === Movement.LEFT && this.posX >= WALL_WIDTH) {
       this.posX -= this.dx;
     }
 
     //if wall is present in between
-    if (isWallPresent) {
-      if (this.posX >= this.wall.posX - this.playerWidth) {
+    GameManager.walls.forEach((wall)=>{
+      if (this.posX >= wall.posX - this.playerWidth) {
         this.posX -= this.dx;
       }
-    }
-    this.posX >= this.wall.posX - this.playerWidth;
+    })
+ 
     if (
       this.movement === Movement.RIGHT &&
       this.posX + this.spriteWidth <=
@@ -146,4 +146,15 @@ export class Player {
       this.posX += this.dx;
     }
   }
+  updateLives(){
+    this.life = this.life -1;
+  }
+  incrementScore() {
+    this.score += 1;
+  }
+
+  addPowerUp(powerUp: any) {
+    this.powerUps.push(powerUp);
+  }
 }
+

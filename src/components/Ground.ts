@@ -10,15 +10,19 @@ export class GroundWalls {
   width: number;
   height: number;
   ctx: CanvasRenderingContext2D;
-  groundImg: CanvasImageSource;
-  constructor(ctx: CanvasRenderingContext2D) {
+  groundImg: HTMLImageElement;
+  level : number
+  constructor(ctx: CanvasRenderingContext2D, level : number) {
     this.ctx = ctx;
     this.posX = GROUND_X;
     this.posY = CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT;
     this.width = CANVAS_DIMENSIONS.CANVAS_WIDTH;
     this.height = GROUND_HEIGHT;
+   
     this.groundImg = new Image();
     this.groundImg.src = groundImage;
+
+    this.level = level;
   }
 
   draw() {
@@ -30,8 +34,6 @@ export class GroundWalls {
       this.width,
       this.height
     );
-    this.ctx.closePath();
-    this.ctx.beginPath();
     this.ctx.closePath();
     this.drawTexts(
       "Player 1",
@@ -48,11 +50,12 @@ export class GroundWalls {
       CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH - 100,
       CANVAS_DIMENSIONS.CANVAS_HEIGHT - 10
     );
-    // this.drawTexts(
-    //   level.toString(),
-    //   (CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH) / 2 + 25,
-    //   CANVAS_DIMENSIONS.CANVAS_HEIGHT - 10
-    // );
+    this.drawTexts(
+      this.level.toString(),
+      (CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH) / 2 + 25,
+      CANVAS_DIMENSIONS.CANVAS_HEIGHT - 10
+    );
+
   }
   
   drawTexts(text: string, posX: number, posY: number) {

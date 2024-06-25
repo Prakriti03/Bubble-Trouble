@@ -1,18 +1,20 @@
 import { GameManager } from "./GameManager";
 import { Bubble } from "./components/Bubble";
-import { LEVEL_ONE, LEVEL_TWO, LEVEL_THREE } from "./constants";
+import { Wall } from "./components/Wall";
+import { LEVEL_ONE, LEVEL_TWO, LEVEL_THREE, LEVEL_FOUR, LEVEL_FIVE } from "./constants";
 
 export class LevelLoader {
   private gameManager: GameManager;
   public levels: any[];
   private currentLevelIndex: number;
   private bubble?: Bubble;
+  wall ?: Wall;
   level: number;
 
 
   constructor(gameManager: GameManager) {
     this.gameManager = gameManager;
-    this.levels = [LEVEL_ONE, LEVEL_TWO, LEVEL_THREE];
+    this.levels = [LEVEL_ONE, LEVEL_TWO, LEVEL_THREE, LEVEL_FOUR, LEVEL_FIVE];
     this.currentLevelIndex = 0;
     this.level = 1;
   }
@@ -40,6 +42,7 @@ export class LevelLoader {
     this.gameManager.level = level.level;
     this.gameManager.numberOfBubbles = level.Bubbles.length;
     GameManager.bubbleArray = [];
+    GameManager.walls = [];
     this.gameManager.isWallPresent = level.isWallPresent;
 
     for (let i = 0; i < level.Bubbles.length; i++) {
@@ -55,6 +58,14 @@ export class LevelLoader {
         bubbleConfig.centerY,
       );
       GameManager.bubbleArray.push(this.bubble);
+    }
+
+    // Load walls
+    if (level.wallsPosX && level.wallsPosX.length > 0) {
+      level.wallsPosX.forEach((wallX: number) => {
+        const wall = new Wall(this.gameManager.ctx, wallX);
+        GameManager.walls.push(wall);
+      });
     }
 
     this.gameManager.initialSetup();
