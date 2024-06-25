@@ -15,6 +15,7 @@ import arrowAudioSrc from "/Harpoon-audio.mp3"
 import splitAudioSrc from "/pop-audio.mp3"
 import wallSlideAudioSrc from "/Sliding-audio.mp3"
 import playerCollideAudioSrc from "/punch-audio.mp3"
+import { Lives } from "./Lives";
 
 
 export class GameManager {
@@ -49,7 +50,6 @@ export class GameManager {
   level?: number;
   wall?: Wall;
   isWallPresent: boolean = false;
-  isBubbleToWallRight: boolean = false;
   customLevelConfig: any;
   powerUp?: PowerUp | null;
   powerUpOption ?: number;
@@ -58,8 +58,12 @@ export class GameManager {
   powerUpArray : PowerUp[]=[];
   static wallSlidingSound : HTMLAudioElement;
   static punchAudio : HTMLAudioElement;
+  life ?: Lives;
+  isPlayerHit : boolean = false;  
+  players: Player[] = [];
 
-  constructor(canvas: HTMLCanvasElement, customLevelConfig?: any) {
+
+  constructor(canvas: HTMLCanvasElement,numberOfPlayers: number, customLevelConfig?: any) {
     this.canvas = canvas;
     this.ctx = this.canvas.getContext("2d")!;
     this.canvas.width = CANVAS_DIMENSIONS.CANVAS_WIDTH;
@@ -95,7 +99,11 @@ export class GameManager {
     GameManager.punchAudio = new Audio(playerCollideAudioSrc);
     GameManager.punchAudio.loop = false;
 
-   
+    //need to do this in initialSetUp (cannot do so because of event listeners)
+    for (let i = 0; i < numberOfPlayers; i++) {
+      this.player = new Player(this.ctx, i); 
+      this.players.push(this.player);
+    }
 
 
     if (this.customLevelConfig) {
@@ -105,46 +113,56 @@ export class GameManager {
     this.initialSetup();
     this.start();
 
-    //when the arrow keys are pressed
+
     document.addEventListener("keydown", (key) => {
-      if (key.code === "ArrowLeft") {
-        this.player!.movement = Movement.LEFT;
-        this.tempMovement = Movement.LEFT;
-      }
-      if (key.code === "ArrowRight") {
-        this.player!.movement = Movement.RIGHT;
-        this.tempMovement = Movement.RIGHT;
-      }
+      this.players.forEach(player=>{
+
+        if (key.code === player.controls!.left) {
+          player.movement = Movement.LEFT;
+          player.tempMovement = Movement.LEFT;
+        }
+        if (key.code === player.controls!.right) {
+          player.movement = Movement.RIGHT;
+          player.tempMovement = Movement.RIGHT;
+        }
+      })
     });
 
-    //when the arrow keys are released
     document.addEventListener("keyup", (e) => {
-      if (e.code === "ArrowLeft" || e.code === "ArrowRight") {
-        this.player!.movement = Movement.STATIONARY;
-        this.tempMovement = Movement.STATIONARY;
-      }
+      this.players.forEach(player=>{
+
+        if (e.code === player.controls!.left || e.code === player.controls!.right) {
+          player.movement = Movement.STATIONARY;
+          player.tempMovement = Movement.STATIONARY;
+        }
+      })
     });
 
-    //when space key is pressed for arrows
-    document.addEventListener("keydown", (key) => {
-      if (key.code === "Space") {
-        const arrowSound = new Audio(arrowAudioSrc);   //need to shift this to constant
-        arrowSound.play();
-        this.arrow = new Arrow(this.ctx, this.player!.posX);
-        this.arrow.isHittable = true;
-        this.player!.movement = Movement.STATIONARY;
-      }
-    });
+    document.addEventListener("keydown", (key)=>{
+      this.players.forEach(player=>{
+
+        if (key.code === player.controls!.shoot) {
+          const arrowSound = new Audio(arrowAudioSrc);
+          arrowSound.play();
+          this.arrow = new Arrow(this.ctx, player.posX);
+          this.arrow.isHittable = true;
+          player.movement = Movement.STATIONARY;
+        }
+      })
+    })
     document.addEventListener("keyup", (key) => {
-      if (key.code === "Space") {
-        this.player!.movement = this.tempMovement;
-      }
+      this.players.forEach(player=>{
+        if(key.code === player.controls!.shoot){
+          player.movement = player.tempMovement;
+        }
+      })
     });
+  
   }
 
   //initializes components
   initialSetup() {
-    this.player = new Player(this.ctx);
+    // this.player = new Player(this.ctx);
     this.ground = new GroundWalls(this.ctx);
 
     //change the number during custom mapping
@@ -156,7 +174,8 @@ export class GameManager {
       CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT
     );
 
-    this.score = new Score(this.ctx)
+    this.score = new Score(this.ctx);
+    this.life = new Lives(this.ctx);
   }
 
   // to draw player, bubbles and power ups
@@ -193,7 +212,7 @@ export class GameManager {
     this.arrow?.draw();
 
     //draw player
-    this.player?.draw();
+    this.players.forEach(player => player.draw());
 
     //draw power-ups
     this.powerUpArray.forEach(powerUp => powerUp.draw());
@@ -222,6 +241,7 @@ export class GameManager {
     }
 
     this.score?.draw();
+    this.life?.draw();
   }
   drawTimer() {
     const minutes = Math.floor(this.timeRemaining / 60000);
@@ -251,27 +271,34 @@ export class GameManager {
     if (this.gameState !== GameState.RUNNING) return;
     //check collision between player and bubble
     GameManager.bubbleArray!.forEach((bubble) => {
-      //closest X-coordinate of player to the bubble
-      const closestX = Math.max(
-        this.player!.posX,
-        Math.min(bubble.x, this.player!.posX + this.player!.width)
-      );
-      //closest Y-coordinate of player to the bubble
-      const closestY = Math.max(
-        this.player!.posY,
-        Math.min(bubble.y, this.player!.posY + this.player!.height)
-      );
+      this.players.forEach(player=>{
 
-      //distance between player and bubble
-      const distanceX = bubble.x - closestX;
-      const distanceY = bubble.y - closestY;
-      const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+        //closest X-coordinate of player to the bubble
+        const closestX = Math.max(
+          player.posX,
+          Math.min(bubble.x, player.posX + player.width)
+        );
+        //closest Y-coordinate of player to the bubble
+        const closestY = Math.max(
+          player.posY,
+          Math.min(bubble.y, player.posY + player.height)
+        );
+  
+        //distance between player and bubble
+        const distanceX = bubble.x - closestX;
+        const distanceY = bubble.y - closestY;
+        const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
 
-      if (distance <= bubble.r) {
-        GameManager.punchAudio.play();
-        this.gameState = GameState.END;
-        // this.endGameStateRender();
-      }
+        if (distance <= bubble.r) {
+          GameManager.punchAudio.play();
+          this.life?.decrement();
+          if(this.life?.life==0){
+  
+            this.gameState = GameState.END;
+          }
+        }
+      });
+
     });
 
     //check collision between bubble and arrow
@@ -283,23 +310,24 @@ export class GameManager {
       );
     });
 
-    console.log(this.elapsedTime);
-
     //check collision between player and power-ups
     this.powerUpArray.forEach((powerUp, index)=>{
-      if (checkCollision(
-        this.player!.posX,
-        this.player!.posY,
-        this.player!.width,
-        this.player!.height,
-        powerUp.posX,
-        powerUp.posY,
-        powerUp.width,
-        powerUp.height
-      )){
-        this.isCollisionPlayerPowerUp = true;
-        this.handlePowerUpCollision(powerUp, index);
-      }
+      this.players.forEach(player=>{
+
+        if (checkCollision(
+          player.posX,
+          player.posY,
+          player.width,
+          player.height,
+          powerUp.posX,
+          powerUp.posY,
+          powerUp.width,
+          powerUp.height
+        )){
+          this.isCollisionPlayerPowerUp = true;
+          this.handlePowerUpCollision(powerUp, index);
+        }
+      })
     })
     
   }
@@ -327,6 +355,8 @@ export class GameManager {
 
   update() {
     if (this.gameState !== GameState.RUNNING) return;
+
+
     this.powerUpArray.forEach(powerUp => powerUp.update());
 
 
@@ -342,7 +372,7 @@ export class GameManager {
       this.isWallPresent = false;
     }
 
-    this.player?.update(this.isWallPresent);
+    this.players.forEach(player => player.update(this.isWallPresent));
 
     //arrow splits bubbles
     GameManager.bubbleArray!.forEach((bubble, index) => {

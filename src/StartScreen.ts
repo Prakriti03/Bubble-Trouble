@@ -3,8 +3,8 @@ import { LevelSelector } from "./LevelSelector";
 export class StartScreen {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
-  startButton !: HTMLButtonElement;
-  selectPlayerButton !: HTMLButtonElement;
+  onePlayerButton !: HTMLButtonElement;
+  twoPlayersButton !: HTMLButtonElement;
   settingsButton !: HTMLButtonElement;
   createGameButton! : HTMLButtonElement;
 
@@ -20,8 +20,8 @@ export class StartScreen {
     this.ctx.fillStyle = "black";
     this.ctx.fillText('Bubble Trouble Game', 100, 100);
 
-    this.startButton = this.createButton('Start Game', 500, 200);
-    this.selectPlayerButton = this.createButton('Select Player', 500, 300);
+    this.onePlayerButton = this.createButton('One Player', 500, 200);
+    this.twoPlayersButton = this.createButton('Two Players', 500, 300);
     this.settingsButton = this.createButton('Settings', 500, 400);
     this.createGameButton = this.createButton('Create Game', 500, 500);
 
@@ -36,9 +36,13 @@ export class StartScreen {
     return button;
   }
   addEventListeners() {
-    this.startButton.addEventListener('click', () => {
+    this.onePlayerButton.addEventListener('click', () => {
       this.clearUI();
-      new LevelSelector(this.canvas);
+      new LevelSelector(this.canvas, 1);
+    });
+    this.twoPlayersButton.addEventListener('click', () => {
+      this.clearUI();
+      new LevelSelector(this.canvas, 2);
     });
     this.createGameButton.addEventListener('click', ()=>{
         this.clearUI();
@@ -49,8 +53,8 @@ export class StartScreen {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
   clearUI() {
-    document.body.removeChild(this.startButton);
-    document.body.removeChild(this.selectPlayerButton);
+    document.body.removeChild(this.onePlayerButton);
+    document.body.removeChild(this.twoPlayersButton);
     document.body.removeChild(this.settingsButton);
     document.body.removeChild(this.createGameButton);
   }

@@ -23,14 +23,15 @@ export class Player {
   staggerFrame: number;
   sprite!: Sprite;
   wall : Wall;
+  controls ?: { left: string, right: string, shoot: string };
+  tempMovement ?: Movement;
 
-  constructor(ctx: CanvasRenderingContext2D) {
+  constructor(ctx: CanvasRenderingContext2D, playerIndex : number) {
     this.heroImage = new Image();
     this.heroImage.src = heroImage;
     this.ctx = ctx;
     this.playerHeight = PLAYER_DIMENSIONS.PLAYER_HEIGHT;
     this.playerWidth = PLAYER_DIMENSIONS.PLAYER_WIDTH;
-    this.posX = WALL_WIDTH; //when walls are present in between
     this.posY =
       CANVAS_DIMENSIONS.CANVAS_HEIGHT - this.playerHeight - GROUND_HEIGHT;
     this.dx = 3;
@@ -48,6 +49,17 @@ export class Player {
       WALL_WIDTH / 2,
       CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT
     );
+
+    // Set controls based on player index
+    if (playerIndex === 0) {
+      this.controls = { left: "ArrowLeft", right: "ArrowRight", shoot: "Space" };
+    } else if (playerIndex === 1) {
+      this.controls = { left: "KeyA", right: "KeyD", shoot: "KeyW" };
+    }
+
+    this.posX = playerIndex === 0 ? WALL_WIDTH : WALL_WIDTH+this.playerWidth+30;
+
+    
   }
 
   get x() {

@@ -23,7 +23,6 @@ export class Bubble {
   bubblePlayerDistance?: number;
   closestPlayerPosX?: number;
   closestPlayerPosY?: number;
-  // static bubbleArray: Bubble[] = [];
   isBubbleArrowCollisionTrue?: boolean;
   isPlayerBubbleCollisionTrue?: boolean;
   mass: number;

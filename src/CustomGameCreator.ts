@@ -270,7 +270,7 @@ export class CustomGamesCreator {
       this.removeUIElements();
       this.removeEventListeners();
 
-      this.gamemanager = new GameManager(this.canvas, customLevelConfig);
+      this.gamemanager = new GameManager(this.canvas, 1, customLevelConfig);
     };
     document.body.appendChild(button);
     this.playButton = button;

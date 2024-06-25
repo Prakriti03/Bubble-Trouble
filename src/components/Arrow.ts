@@ -1,5 +1,4 @@
 import arrowImage from "/arrow.png";
-import { Player } from "./Player";
 import { Bubble } from "./Bubble";
 import { GROUND_HEIGHT, CANVAS_DIMENSIONS } from "../constants";
 import { Movement } from "../utils/enum";
@@ -8,7 +7,6 @@ export class Arrow {
   posX: number;
   posY: number;
   ctx: CanvasRenderingContext2D;
-  player: Player;
   arrowImage: CanvasImageSource;
   isActive: boolean;
   playerMovement?: Movement;
@@ -19,9 +17,9 @@ export class Arrow {
 
   constructor(ctx: CanvasRenderingContext2D, posX: number) {
     this.ctx = ctx;
-    this.player = new Player(ctx);
     // this.bubble = new Bubble(ctx, 1, 40);
-    this.posX = posX + this.player.playerWidth / 2;
+    // this.posX = posX + this.player.playerWidth / 2;
+    this.posX = posX;
     this.posY = CANVAS_DIMENSIONS.CANVAS_HEIGHT - GROUND_HEIGHT;
     this.arrowImage = new Image();
     this.arrowImage.src = arrowImage;

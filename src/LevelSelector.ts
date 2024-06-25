@@ -4,12 +4,14 @@ export class LevelSelector {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   levelButtons: HTMLButtonElement[] = [];
+  numberofPlayers : number;
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, numberofPlayers : number) {
     this.canvas = canvas;
     this.ctx = this.canvas.getContext("2d")!;
     this.createUI();
     this.addEventListeners();
+    this.numberofPlayers = numberofPlayers;
   }
 
   createUI() {
@@ -37,7 +39,7 @@ export class LevelSelector {
     this.levelButtons.forEach((button, index) => {
       button.addEventListener("click", () => {
         this.clearUI();
-        new GameManager(this.canvas).levelLoader.loadLevel(index);
+        new GameManager(this.canvas, this.numberofPlayers).levelLoader.loadLevel(index);
       });
     });
   }
