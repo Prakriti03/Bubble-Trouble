@@ -1,16 +1,15 @@
 import { GameManager } from "./GameManager";
 import { Bubble } from "./components/Bubble";
 import { Wall } from "./components/Wall";
-import { LEVEL_ONE, LEVEL_TWO, LEVEL_THREE, LEVEL_FOUR, LEVEL_FIVE } from "./constants";
+import { LEVEL_ONE,LEVEL_TWO, LEVEL_THREE, LEVEL_FOUR, LEVEL_FIVE } from "./utils/levels";
 
 export class LevelLoader {
   private gameManager: GameManager;
   public levels: any[];
   private currentLevelIndex: number;
   private bubble?: Bubble;
-  wall ?: Wall;
+  wall?: Wall;
   level: number;
-
 
   constructor(gameManager: GameManager) {
     this.gameManager = gameManager;
@@ -49,13 +48,12 @@ export class LevelLoader {
       const bubbleConfig = level.Bubbles[i];
       const bubbleCenterX = bubbleConfig.centerX;
 
-
       this.bubble = new Bubble(
         this.gameManager.ctx,
         i,
         bubbleConfig.radius,
         bubbleCenterX,
-        bubbleConfig.centerY,
+        bubbleConfig.centerY
       );
       GameManager.bubbleArray.push(this.bubble);
     }

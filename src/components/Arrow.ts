@@ -12,7 +12,7 @@ export class Arrow {
   playerMovement?: Movement;
   bubbleArray?: Bubble[];
   isBubbleArrowCollisionTrue?: boolean[];
-  isHittable: boolean = false;
+  isHittable ?: boolean =false;
   static isSticky : boolean = false;
 
   constructor(ctx: CanvasRenderingContext2D, posX: number) {

@@ -1,16 +1,19 @@
-
 export class Sprite {
   img: HTMLImageElement;
-  posX : number;
-  posY : number;
+  posX: number;
+  posY: number;
   ctx: CanvasRenderingContext2D;
   spriteWidth: number;
   spriteHeight: number;
-  spriteX : number;
-  spriteY : number;
+  spriteX: number;
+  spriteY: number;
   constructor(
     ctx: CanvasRenderingContext2D,
-    imgSource : string, spriteX: number, spriteY: number, posX: number, posY : number
+    imgSource: string,
+    spriteX: number,
+    spriteY: number,
+    posX: number,
+    posY: number
   ) {
     this.img = new Image();
     this.img.src = imgSource;
@@ -24,17 +27,16 @@ export class Sprite {
     this.drawSprite();
   }
   drawSprite() {
-   
-      this.ctx.drawImage(
-        this.img,
-        this.spriteX,
-        this.spriteY,
-        this.spriteWidth,
-        this.spriteHeight,
-        this.posX,
-        this.posY,
-        this.spriteWidth,
-        this.spriteHeight
-      );
+    this.ctx.drawImage(
+      this.img,
+      this.spriteX,
+      this.spriteY,
+      this.spriteWidth,
+      this.spriteHeight,
+      this.posX,
+      this.posY,
+      this.spriteWidth,
+      this.spriteHeight
+    );
   }
 }

@@ -6,24 +6,27 @@ export class Lives {
     this.ctx = ctx;
   }
 
-
-  draw(playerOneLife: number, playerTwoLife : number) {
+  draw(lives: number, playerIndex: number) {
     //draw for Player 2
-    this.ctx.fillStyle = "red";
-    this.ctx.font = "20px";
-    this.ctx.fillText(
-      `Lives: ${playerTwoLife} `,
-      CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH - 100,
-      CANVAS_DIMENSIONS.CANVAS_HEIGHT - 50
-    );
+    if (playerIndex == 1) {
+      this.ctx.fillStyle = "red";
+      this.ctx.font = "20px";
+      this.ctx.fillText(
+        `Lives: ${lives} `,
+        CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH - 100,
+        CANVAS_DIMENSIONS.CANVAS_HEIGHT - 50
+      );
+    }
 
     //draw for Player 1
-    this.ctx.fillStyle = "red";
-    this.ctx.font = "20px";
-    this.ctx.fillText(
-      `Lives: ${playerOneLife} `,
-      WALL_WIDTH,
-      CANVAS_DIMENSIONS.CANVAS_HEIGHT - 50
-    );
+    if (playerIndex == 0) {
+      this.ctx.fillStyle = "red";
+      this.ctx.font = "20px";
+      this.ctx.fillText(
+        `Lives: ${lives} `,
+        WALL_WIDTH,
+        CANVAS_DIMENSIONS.CANVAS_HEIGHT - 50
+      );
+    }
   }
 }

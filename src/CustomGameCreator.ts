@@ -1,9 +1,8 @@
 import {
   CANVAS_DIMENSIONS,
   GROUND_HEIGHT,
-  LEVEL_FIVE,
 } from "./constants";
-import { LEVEL_ONE } from "./constants";
+import { LEVEL_FIVE , LEVEL_ONE} from "./utils/levels";
 import groundImg from "/wall.jpg";
 import { GameManager } from "./GameManager";
 import { GroundWalls } from "./components/Ground";
@@ -54,14 +53,12 @@ export class CustomGamesCreator {
   public initialSetup(): void {
     this.clearCanvas();
     this.bgImage.onload = () => {
-      this.groundImg.onload = () => {
-        this.setupStaticLevel();
-        this.selectSizeOption();
-        this.createAddBubbleButton();
-        this.createPlayButton();
-        this.createAddWallButton();
-        this.addEventListeners();
-      };
+      this.setupStaticLevel();
+      this.selectSizeOption();
+      this.createAddBubbleButton();
+      this.createPlayButton();
+      this.createAddWallButton();
+      this.addEventListeners();
     };
   }
 
@@ -77,7 +74,7 @@ export class CustomGamesCreator {
       this.canvas.height
     );
     this.wall?.drawDefaultWalls();
-    this.ground.draw();
+    // this.ground.draw();
   }
 
   //drop-down element for choosing radius of circle
@@ -325,9 +322,6 @@ export class CustomGamesCreator {
 
     document.body.removeChild(this.bubbleOptions!);
     this.bubbleOptions = undefined;
-
-    // document.body.removeChild(this.wallOptions!);
-    // this.wallOptions = undefined;
 
     document.body.removeChild(this.addWallButton!);
     this.addWallButton = undefined;

@@ -3,11 +3,13 @@ import { CANVAS_DIMENSIONS } from "../constants";
 import { GROUND_HEIGHT } from "../constants";
 import { Movement } from "../utils/enum";
 import { Sprite } from "../Sprite";
-import heroImage from "/hero.png";
+import playerOneImgSrc from "/hero.png";
+import playerTwoImgSrc from "/hero-2.png"
 import { GameManager } from "../GameManager";
+import { Arrow } from "./Arrow";
 
 export class Player {
-  heroImage: HTMLImageElement;
+  imgSource !: string;
   ctx: CanvasRenderingContext2D;
   posX !: number;
   posY: number;
@@ -27,10 +29,11 @@ export class Player {
   life : number ;
   score : number ;
   powerUps : number[];
+  initialPosX : number;
+  arrow : Arrow;
+  isHittable ?: boolean ;
 
   constructor(ctx: CanvasRenderingContext2D, playerIndex : number, initialLife : number, initialScore: number) {
-    this.heroImage = new Image();
-    this.heroImage.src = heroImage;
     this.ctx = ctx;
     this.playerHeight = PLAYER_DIMENSIONS.PLAYER_HEIGHT;
     this.playerWidth = PLAYER_DIMENSIONS.PLAYER_WIDTH;
@@ -47,17 +50,20 @@ export class Player {
     this.life = initialLife;
     this.score = initialScore;
     this.powerUps = [];
+    this.initialPosX = playerIndex === 0 ? WALL_WIDTH : CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH - this.playerWidth;
+    this.posX = this.initialPosX;
+    this.arrow = new Arrow(ctx, this.posX);    //each player should have an instance of arrow to determine the score
 
     // Set controls based on player index
     if (playerIndex === 0) {
+      this.imgSource = playerOneImgSrc;
       this.controls = { left: "ArrowLeft", right: "ArrowRight", shoot: "Space" };
       this.posX = WALL_WIDTH
     } else if (playerIndex === 1) {
+      this.imgSource = playerTwoImgSrc;
       this.controls = { left: "KeyA", right: "KeyD", shoot: "KeyW" };
-      this.posX = CANVAS_DIMENSIONS.CANVAS_WIDTH - WALL_WIDTH - this.playerWidth;
+      this.posX =  WALL_WIDTH + this.playerWidth;
     }
-
-    // this.posX = playerIndex === 0 ? WALL_WIDTH : WALL_WIDTH+this.playerWidth+30;
 
     
   }
@@ -83,7 +89,7 @@ export class Player {
     if (this.movement === Movement.STATIONARY) {
       this.sprite = new Sprite(
         this.ctx,
-        heroImage,
+        this.imgSource,
         8,
         112,
         this.posX,
@@ -94,7 +100,7 @@ export class Player {
     if (this.movement === Movement.LEFT) {
       this.sprite = new Sprite(
         this.ctx,
-        heroImage,
+        this.imgSource,
         this.frameX * this.spriteWidth,
         57,
         this.posX,
@@ -109,7 +115,7 @@ export class Player {
     if (this.movement === Movement.RIGHT) {
       this.sprite = new Sprite(
         this.ctx,
-        heroImage,
+        this.imgSource,
         this.frameX * this.spriteWidth,
         0,
         this.posX,
@@ -151,10 +157,12 @@ export class Player {
   }
   incrementScore() {
     this.score += 1;
+    console.log(this.score);
   }
 
-  addPowerUp(powerUp: any) {
-    this.powerUps.push(powerUp);
+  
+  activateStickyArrow() {
+    Arrow.isSticky = true;
   }
 }
 
