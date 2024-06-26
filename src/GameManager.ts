@@ -116,6 +116,8 @@ export class GameManager {
     this.gameOverImg = new Image();
     this.gameOverImg.src = gameOverImgSrc;
 
+    this.start = this.start.bind(this);
+
     this.initialSetup();
     this.start();
 
@@ -328,7 +330,7 @@ export class GameManager {
     } else if (powerUp.powerUpOption == 2) {
       player.activateStickyArrow();
     } else {
-      this.adjustedTime -= 10000;
+      this.adjustedTime -= 3000;  
     }
     // Remove the power-up from the array
     this.powerUpArray.splice(index, 1);
@@ -474,7 +476,6 @@ export class GameManager {
     this.checkCollision();
     this.update();
     this.draw();
-    this.start = this.start.bind(this);
     requestAnimationFrame(this.start);
   }
 }
