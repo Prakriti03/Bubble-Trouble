@@ -2,6 +2,8 @@
 
 This project is a simplified version of the classic Bubble Trouble game, emphasizing quick reflexes and precision to pop bubbles and progress through levels. The goal is to avoid bubbles while navigating the characters and popping all the bubbles to clear the stage within the limited time.
 
+<a href = "https://prakriti03.github.io/Bubble-Trouble/demo/">Play</a>
+
 ## PLAY
 
 ### How to Play
